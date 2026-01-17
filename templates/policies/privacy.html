@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% set title = "Polityka prywatności — " ~ BRAND %}
+{% block content %}
+<section class="max-w-3xl mx-auto px-4 pt-10 pb-16">
+  <h1 class="text-3xl font-semibold tracking-tight">Polityka prywatności</h1>
+  <p class="mt-4 text-slate-600">
+    Niniejsza polityka opisuje zasady przetwarzania danych osobowych w związku z korzystaniem ze strony {{ BRAND }}.
+  </p>
+
+  <div class="mt-8 space-y-6 text-sm text-slate-700">
+    <div>
+      <div class="font-semibold">1. Administrator</div>
+      <p class="mt-2 text-slate-600">Administratorem danych jest podmiot prowadzący stronę (dane uzupełnij w stopce/RODO).</p>
+    </div>
+
+    <div>
+      <div class="font-semibold">2. Zakres danych</div>
+      <ul class="mt-2 list-disc list-inside text-slate-600">
+        <li>dane podane w formularzu kontaktowym (np. imię, e‑mail, telefon, treść wiadomości),</li>
+        <li>dane techniczne (adres IP, logi serwera) — w zakresie niezbędnym do bezpieczeństwa i utrzymania serwisu.</li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="font-semibold">3. Cele i podstawy przetwarzania</div>
+      <ul class="mt-2 list-disc list-inside text-slate-600">
+        <li>kontakt i obsługa zapytań (art. 6 ust. 1 lit. b lub f RODO),</li>
+        <li>zabezpieczenie serwisu i dochodzenie roszczeń (art. 6 ust. 1 lit. f RODO),</li>
+        <li>jeśli włączysz narzędzia analityczne/marketingowe — na podstawie zgody (art. 6 ust. 1 lit. a RODO).</li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="font-semibold">4. Okres przechowywania</div>
+      <p class="mt-2 text-slate-600">
+        Dane z formularza przechowywane są przez czas niezbędny do obsługi zapytania, a następnie przez okres przedawnienia roszczeń.
+      </p>
+    </div>
+
+    <div>
+      <div class="font-semibold">5. Prawa osoby</div>
+      <p class="mt-2 text-slate-600">
+        Przysługuje prawo dostępu, sprostowania, usunięcia, ograniczenia, przenoszenia danych oraz sprzeciwu. Możesz również wnieść skargę do UODO.
+      </p>
+    </div>
+
+    <div>
+      <div class="font-semibold">6. Kontakt</div>
+      <p class="mt-2 text-slate-600">
+        W sprawach prywatności skontaktuj się z administratorem (e‑mail/telefon w stopce).
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

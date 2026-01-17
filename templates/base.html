@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>{{ title or SITE_NAME }}</title>
+  <meta name="description" content="{{ meta_description or 'Nowoczesne rozwiązania laserowe – X‑LEVAGE.' }}">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}?v=16">
+  {% block head %}{% endblock %}
+</head>
+<body class="bg-white text-slate-900 antialiased">
+  <header class="site-header sticky top-0 bg-white/80 backdrop-blur border-b border-slate-100">
+    <div class="max-w-6xl mx-auto px-4 py-2 md:py-3 flex items-center justify-between gap-3">
+      <a href="{{ url_for('index') }}" class="flex items-center gap-3">
+        <div class="h-8 w-8 md:h-9 md:w-9 rounded-xl bg-slate-900 text-white grid place-items-center font-semibold tracking-tight">X</div>
+        <div class="leading-tight">
+          <div class="text-[11px] md:text-sm uppercase tracking-wide text-slate-500">{{ BRAND }}</div>
+          <div class="text-sm font-semibold sm:hidden">X‑Levage</div>
+          <div class="hidden sm:block text-base font-semibold">Laser Tulowy & Erbowo‑szklany</div>
+        </div>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-6 text-sm text-slate-600">
+        <a class="hover:text-slate-900" href="{{ url_for('pro') }}">X‑Levage Pro</a>
+        <a class="hover:text-slate-900" href="{{ url_for('erbo') }}">X‑Levage Erbo</a>
+        <a class="hover:text-slate-900" href="{{ url_for('gabinet') }}">Mapa gabinetów</a>
+        <a class="hover:text-slate-900" href="{{ url_for('index') }}#kontakt">Kontakt</a>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <!-- Mobile menu button -->
+        <button id="mobileMenuBtn" class="md:hidden inline-flex items-center justify-center h-9 w-9 rounded-xl border border-slate-200 hover:border-slate-300" aria-label="Menu" aria-expanded="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6h16" />
+            <path d="M4 12h16" />
+            <path d="M4 18h16" />
+          </svg>
+        </button>
+
+        {% if is_admin %}
+          <a href="{{ url_for('admin_dashboard') }}" class="hidden sm:inline-flex px-3 py-2 rounded-xl border border-slate-200 text-sm hover:border-slate-300">Panel</a>
+          <form method="post" action="{{ url_for('admin_logout') }}">
+            <button class="px-3 py-2 rounded-xl bg-slate-900 text-white text-sm hover:bg-slate-800">Wyloguj</button>
+          </form>
+        {% else %}
+          <!-- Desktop CTA; on mobile this action is inside the menu drawer -->
+          <a href="{{ url_for('gabinet') }}" class="hidden md:inline-flex px-3 py-2 rounded-xl bg-slate-900 text-white text-sm hover:bg-slate-800">Zobacz gabinety</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="max-w-6xl mx-auto px-4 pt-6">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="space-y-2 mb-6">
+            {% for category, msg in messages %}
+              <div class="rounded-xl border px-4 py-3 text-sm
+                {% if category == 'success' %} border-emerald-200 bg-emerald-50 text-emerald-900
+                {% elif category == 'error' %} border-rose-200 bg-rose-50 text-rose-900
+                {% else %} border-slate-200 bg-slate-50 text-slate-900{% endif %}">
+                {{ msg }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="mt-16 border-t border-slate-100">
+    <div class="max-w-6xl mx-auto px-4 py-10 grid md:grid-cols-3 gap-10">
+      <div>
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-2xl bg-slate-900 text-white grid place-items-center font-semibold">X</div>
+          <div>
+            <div class="text-sm uppercase tracking-wide text-slate-500">{{ BRAND }}</div>
+            <div class="font-semibold">Materiały informacyjne</div>
+          </div>
+        </div>
+        <p class="mt-3 text-sm text-slate-600">
+          Strona produktowa przygotowana pod kampanię X‑Levage. Informacje medyczne mają charakter ogólny i nie stanowią porady lekarskiej.
+        </p>
+      </div>
+
+      <div>
+        <div class="font-semibold">Kontakt</div>
+        <div class="mt-3 text-sm text-slate-600 space-y-2">
+          {% if CONTACT_EMAIL %}
+          <div>E‑mail: <a class="underline" href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a></div>
+          {% endif %}
+          {% if CONTACT_PHONE %}
+          <div>Telefon/WhatsApp: <a class="underline" href="tel:{{ CONTACT_PHONE|replace(' ','') }}">{{ CONTACT_PHONE }}</a></div>
+          {% endif %}
+          {% if INSTAGRAM_URL %}
+          <div>Instagram: <a class="underline" href="{{ INSTAGRAM_URL }}" target="_blank" rel="noopener">@{{ INSTAGRAM_HANDLE or 'xestetik' }}</a></div>
+          {% endif %}
+          <div class="text-xs text-slate-500">Odpowiadamy w dni robocze.</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="font-semibold">Polityki</div>
+        <div class="mt-3 text-sm text-slate-600 grid gap-2">
+          <a class="underline" href="{{ url_for('policies', slug='privacy') }}">Polityka prywatności</a>
+          <a class="underline" href="{{ url_for('policies', slug='cookies') }}">Polityka cookies</a>
+          <a class="underline" href="{{ url_for('policies', slug='terms') }}">Regulamin</a>
+          <a class="underline" href="{{ url_for('policies', slug='disclaimer') }}">Zastrzeżenia medyczne</a>
+          <a class="underline" href="{{ url_for('policies', slug='rodo') }}">RODO</a>
+        </div>
+        <!-- Admin panel uses login/password; no token/env required. -->
+      </div>
+    </div>
+    <div class="border-t border-slate-100">
+      <div class="max-w-6xl mx-auto px-4 py-6 text-xs text-slate-500 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
+        <div>© {{ BRAND }} {{ CURRENT_YEAR }}</div>
+        <div class="text-slate-400">Built with Flask</div>
+      </div>
+    </div>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+
+  
+  <!-- Mobile menu (rebuilt, robust) -->
+  <div id="mobileMenuRoot" class="mm-root" aria-hidden="true">
+    <div id="mobileMenuBackdrop" class="mm-backdrop" aria-hidden="true"></div>
+
+    <aside id="mobileMenu" class="mm-panel" role="dialog" aria-modal="true" aria-label="Menu">
+      <div class="mm-top">
+        <div class="mm-title">Menu</div>
+        <button id="mobileMenuClose" class="mm-close" aria-label="Zamknij">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6L6 18" />
+            <path d="M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <nav class="mm-nav">
+        <a class="mm-item mm-item-strong" href="{{ url_for('gabinet') }}">Zobacz gabinety</a>
+
+        <div class="mm-section">
+          <div class="mm-section-title">Strony</div>
+          <a class="mm-item" href="{{ url_for('index') }}">Strona główna</a>
+          <a class="mm-item" href="{{ url_for('pro') }}">X‑Levage Pro</a>
+          <a class="mm-item" href="{{ url_for('erbo') }}">X‑Levage Erbo</a>
+          <a class="mm-item" href="{{ url_for('gabinet') }}">Mapa gabinetów</a>
+        </div>
+
+        <div class="mm-section">
+          <div class="mm-section-title">Sekcje (strona główna)</div>
+          <a class="mm-item" href="{{ url_for('index') }}#start">Opis i formularz</a>
+          <a class="mm-item" href="{{ url_for('index') }}#efekty">Efekty zabiegów</a>
+          <a class="mm-item" href="{{ url_for('index') }}#urzadzenia">Zdjęcia urządzeń</a>
+          <a class="mm-item" href="{{ url_for('index') }}#mapa">Mapa gabinetów (podgląd)</a>
+          <a class="mm-item" href="{{ url_for('index') }}#kontakt">Kontakt</a>
+        </div>
+
+        <div class="mm-section">
+          <div class="mm-section-title">Polityki</div>
+          <a class="mm-item" href="{{ url_for('policies', slug='privacy') }}">Polityka prywatności</a>
+          <a class="mm-item" href="{{ url_for('policies', slug='cookies') }}">Polityka cookies</a>
+          <a class="mm-item" href="{{ url_for('policies', slug='terms') }}">Regulamin</a>
+          <a class="mm-item" href="{{ url_for('policies', slug='disclaimer') }}">Zastrzeżenia medyczne</a>
+          <a class="mm-item" href="{{ url_for('policies', slug='rodo') }}">RODO</a>
+        </div>
+      </nav>
+    </aside>
+  </div>
+
+
+  <script src="{{ url_for('static', filename='js/site.js') }}?v=16"></script>
+</body>
+</html>

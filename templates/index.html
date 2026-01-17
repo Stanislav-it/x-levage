@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% set title = BRAND ~ " — strona produktowa" %}
+
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+{% endblock %}
+
+{% block content %}
+<!-- Fullscreen video hero (Neuralink-like) -->
+<section class="relative h-[calc(100vh-64px)] min-h-[640px] overflow-hidden">
+  <video id="heroVideo" class="absolute inset-0 h-full w-full object-cover" autoplay loop playsinline muted>
+    <source src="{{ url_for('static', filename='video/hero.mp4') }}" type="video/mp4" />
+  </video>
+  <div class="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-white/0"></div>
+
+  <div class="relative max-w-6xl mx-auto px-4 h-full">
+    <div class="h-full flex items-end pb-14">
+      <div class="max-w-2xl">
+        <p class="text-white/80 text-sm uppercase tracking-wide">Nowoczesne lasery frakcyjne</p>
+        <h1 class="mt-3 text-4xl sm:text-6xl font-semibold tracking-tight text-white">
+          X‑Levage Pro i X‑Levage Erbo
+        </h1>
+        <p class="mt-5 text-white/85 leading-relaxed text-base sm:text-lg">
+          Minimalistyczna strona produktowa: technologia, efekty oraz mapa gabinetów (ambasadorzy i autoryzowani).
+        </p>
+
+        <div class="mt-7 flex flex-col sm:flex-row gap-3">
+          <a href="{{ url_for('pro') }}" class="px-6 py-3 rounded-2xl bg-white text-slate-900 hover:bg-white/90 shadow-soft">Poznaj X‑Levage Pro</a>
+          <a href="{{ url_for('erbo') }}" class="px-6 py-3 rounded-2xl border border-white/60 text-white hover:bg-white/10">Poznaj X‑Levage Erbo</a>
+          <button id="soundToggle" type="button" class="px-6 py-3 rounded-2xl border border-white/60 text-white hover:bg-white/10">Włącz dźwięk</button>
+        </div>
+
+        <div class="mt-6 flex items-center gap-3 text-white/75 text-sm">
+          <button type="button" id="scrollNext" class="inline-flex items-center gap-2 hover:text-white">
+            <span>Zobacz więcej</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14" /><path d="M19 12l-7 7-7-7" />
+            </svg>
+          </button>
+          <span class="text-white/50">•</span>
+          <span>{{ stats.pro_wavelength }} / {{ stats.erbo_wavelength }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Content starts here -->
+<section id="start" class="max-w-6xl mx-auto px-4 pt-10 pb-12 scroll-mt-24">
+  <div class="grid lg:grid-cols-2 gap-10 items-start">
+    <div>
+      <h2 class="text-2xl font-semibold tracking-tight">Szybki opis</h2>
+      <p class="mt-3 text-slate-600 leading-relaxed">
+        Dwie konfiguracje technologii: laser tulowy 1927 nm oraz laser erbowo‑szklany 1550 nm + tulowy 1927 nm.
+        Poniżej: efekty, zdjęcia urządzeń, mapa gabinetów oraz kontakt.
+      </p>
+
+      <div class="mt-7 grid sm:grid-cols-3 gap-4">
+        <div class="rounded-2xl border border-slate-100 p-4">
+          <div class="text-xs text-slate-500">Fala tulowa</div>
+          <div class="mt-1 font-semibold">{{ stats.pro_wavelength }}</div>
+        </div>
+        <div class="rounded-2xl border border-slate-100 p-4">
+          <div class="text-xs text-slate-500">Dual‑wavelength</div>
+          <div class="mt-1 font-semibold">{{ stats.erbo_wavelength }}</div>
+        </div>
+        <div class="rounded-2xl border border-slate-100 p-4">
+          <div class="text-xs text-slate-500">Mapa gabinetów</div>
+          <div class="mt-1 font-semibold">Ambasadorzy i autoryzowani</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-3xl border border-slate-100 p-6 shadow-soft">
+      <div class="text-sm text-slate-500">Szybki kontakt</div>
+      <div class="mt-2 text-xl font-semibold">Zapytanie o urządzenie / prezentację</div>
+      <form class="mt-5 grid gap-3" method="post" action="{{ url_for('lead') }}">
+        <div class="grid sm:grid-cols-2 gap-3">
+          <input name="name" placeholder="Imię i nazwisko" class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
+          <input name="phone" placeholder="Telefon (opcjonalnie)" class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
+        </div>
+        <input type="email" name="email" placeholder="E‑mail" class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
+        <textarea name="message" rows="4" placeholder="Wiadomość" class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200"></textarea>
+        <button class="px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800">Wyślij</button>
+        <p class="text-xs text-slate-500">
+          Wysyłając formularz akceptujesz politykę prywatności.
+        </p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section id="efekty" class="max-w-6xl mx-auto px-4 py-12 scroll-mt-24" data-effects-gallery data-initial="8" data-step="8">
+  <div class="flex items-end justify-between gap-6">
+    <div>
+      <div class="flex items-center gap-3">
+        <h2 class="text-2xl font-semibold tracking-tight">Efekty zabiegów</h2>
+        {% if effects %}
+          <span class="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600">
+            {{ effects|length }} zdjęć
+          </span>
+        {% endif %}
+      </div>
+      <p class="mt-2 text-slate-600">Wybrane rezultaty zabiegów – dokumentacja przed/po.</p>
+    </div>
+    <a href="{{ url_for('pro') }}#efekty" class="text-sm underline text-slate-600 hover:text-slate-900">Zobacz opis technologii</a>
+  </div>
+
+  {% if effects %}
+    <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3" data-effects-grid>
+      {% for src in effects %}
+        <a href="{{ src }}" target="_blank" data-effects-item
+           class="group block overflow-hidden rounded-2xl border border-slate-100 bg-slate-50 {% if loop.index0 >= 8 %}hidden{% endif %}">
+          <img src="{{ src }}" alt="Efekt zabiegu" loading="lazy" class="w-full h-48 object-cover group-hover:scale-[1.02] transition">
+        </a>
+      {% endfor %}
+    </div>
+
+    {% if effects|length > 8 %}
+      <div class="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="text-sm text-slate-600">
+          Pokazano <span class="font-semibold text-slate-900" data-effects-shown>8</span>
+          z <span class="font-semibold text-slate-900" data-effects-total>{{ effects|length }}</span>
+        </div>
+        <button type="button" class="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800" data-effects-more>
+          Pokaż więcej
+        </button>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="mt-6 rounded-2xl border border-dashed border-slate-200 p-8 text-slate-600">
+      Brak zdjęć do wyświetlenia.
+    </div>
+  {% endif %}
+</section>
+
+<section id="urzadzenia" class="max-w-6xl mx-auto px-4 py-12 scroll-mt-24">
+  <div class="flex items-end justify-between gap-6">
+    <div>
+      <h2 class="text-2xl font-semibold tracking-tight">Zdjęcia urządzeń</h2>
+      <p class="mt-2 text-slate-600">Galeria urządzeń i zastosowań w gabinecie.</p>
+    </div>
+  </div>
+
+  {% if devices %}
+    <div class="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
+      {% for src in devices %}
+        <a href="{{ src }}" target="_blank" class="group block overflow-hidden rounded-2xl border border-slate-100 bg-slate-50">
+          <img src="{{ src }}" alt="Zdjęcie urządzenia" class="w-full h-56 object-cover group-hover:scale-[1.02] transition">
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="mt-6 rounded-2xl border border-dashed border-slate-200 p-8 text-slate-600">
+      Brak zdjęć do wyświetlenia.
+    </div>
+  {% endif %}
+</section>
+
+<section id="mapa" class="max-w-6xl mx-auto px-4 py-12 scroll-mt-24">
+  <div class="rounded-3xl border border-slate-100 p-8 shadow-soft bg-gradient-to-b from-white to-slate-50">
+    <div class="grid md:grid-cols-2 gap-10 items-start">
+      <div>
+        <h2 class="text-2xl font-semibold tracking-tight">Mapa gabinetów</h2>
+        <p class="mt-2 text-slate-600">Wybierz gabinet na mapie lub przejdź do pełnej listy.</p>
+        <div class="mt-6 flex gap-3 flex-wrap">
+          <a href="{{ url_for('gabinet', view='ambassadors') }}" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm">Gabinetów ambasadorskich</a>
+          <a href="{{ url_for('gabinet', view='authorized') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-sm">Gabinetów autoryzowanych</a>
+          <a href="{{ url_for('gabinet', view='all') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-sm">Wszystkie</a>
+        </div>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+          <div class="text-sm font-semibold">Mapa</div>
+          <div class="text-xs text-slate-500">OpenStreetMap</div>
+        </div>
+        <div id="mapPreview" class="map-preview"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="kontakt" class="max-w-6xl mx-auto px-4 py-12 scroll-mt-24">
+  <div class="grid md:grid-cols-2 gap-10">
+    <div>
+      <h2 class="text-2xl font-semibold tracking-tight">Kontakt</h2>
+      <p class="mt-2 text-slate-600">
+        Jeśli potrzebujesz materiałów wideo lub dodatkowych zdjęć — wyślij wiadomość.
+      </p>
+      <div class="mt-6 space-y-2 text-sm text-slate-700">
+        {% if CONTACT_PHONE %}<div>Telefon/WhatsApp: <a class="underline" href="tel:{{ CONTACT_PHONE|replace(' ','') }}">{{ CONTACT_PHONE }}</a></div>{% endif %}
+        {% if CONTACT_EMAIL %}<div>E‑mail: <a class="underline" href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a></div>{% endif %}
+      </div>
+    </div>
+    <div class="rounded-3xl border border-slate-100 p-6 shadow-soft">
+      <div class="text-sm text-slate-500">Szybkie zapytanie</div>
+      <form class="mt-4 grid gap-3" method="post" action="{{ url_for('lead') }}">
+        <input name="name" placeholder="Imię i nazwisko" class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
+        <div class="grid sm:grid-cols-2 gap-3">
+          <input type="email" name="email" placeholder="E‑mail" class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
+          <input name="phone" placeholder="Telefon" class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
+        </div>
+        <textarea name="message" rows="4" placeholder="Wiadomość" class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200"></textarea>
+        <button class="px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800">Wyślij</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% block scripts %}
+  {{ super() }}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    (function () {
+      const el = document.getElementById('mapPreview');
+      if (!el || typeof L === 'undefined') return;
+
+      // Init map
+      const map = L.map(el, { scrollWheelZoom: false, dragging: true, tap: true });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+
+      const icon = L.icon({
+        iconUrl: '{{ url_for('static', filename='img/marker.svg') }}',
+        iconSize: [26, 26],
+        iconAnchor: [13, 26],
+        popupAnchor: [0, -22]
+      });
+
+      // Default view (Poland)
+      map.setView([52.1, 19.4], 6);
+
+      fetch('{{ url_for('api_clinics') }}?view=all')
+        .then(r => r.json())
+        .then(data => {
+          const clinics = (data && data.clinics) ? data.clinics : [];
+          const pts = [];
+          clinics.forEach(c => {
+            if (!c || c.lat == null || c.lng == null) return;
+            const lat = parseFloat(c.lat);
+            const lng = parseFloat(c.lng);
+            if (!isFinite(lat) || !isFinite(lng)) return;
+            pts.push([lat, lng]);
+            const title = c.name || 'Gabinet';
+            const city = c.city ? (' — ' + c.city) : '';
+            const addr = c.address ? ('<div class="text-xs text-slate-600">' + c.address + '</div>') : '';
+            L.marker([lat, lng], { icon }).addTo(map)
+              .bindPopup('<div class="text-sm font-semibold">' + title + city + '</div>' + addr);
+          });
+          if (pts.length) {
+            const bounds = L.latLngBounds(pts).pad(0.15);
+            map.fitBounds(bounds);
+          }
+        })
+        .catch(() => {
+          // keep default view
+        });
+    })();
+  </script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,98 @@
+# X‑LEVAGE — Flask site (minimalist)
+
+## Co jest w środku
+- Flask + SQLite (`instance/app.db`)
+- Strony:
+  - `/` (home)
+  - `/laser-tulowy-x-levage-pro`
+  - `/x-levage-erbo`
+  - `/gabinet` (mapa)
+  - `/policies/*` (polityki)
+- Panel admin:
+  - Logowanie jest konfigurowane przez zmienne środowiskowe (Render Environment Variables).
+  - `/admin/login`
+  - `/admin` (lista/edycja gabinetów)
+  - `/admin/import` (import hurtowy)
+
+## Wymagania
+- Python 3.10+
+
+## Instalacja
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+## Uruchomienie
+```bash
+flask run
+```
+
+### Zmienne środowiskowe
+W produkcji ustaw co najmniej:
+- `SECRET_KEY` (w Render możesz użyć przycisku **Generate**)
+- `ADMIN_USER` i `ADMIN_PASS`
+
+## Materiały (zdjęcia)
+Dodaj pliki:
+- `static/efekty_zabiegow/*` (przed/po)
+- `static/fotos/*` (zdjęcia urządzeń)
+
+Galerie na stronie aktualizują się automatycznie.
+
+## Mapa gabinetów
+1. Zaloguj się do panelu (`/admin/login`)
+2. Dodaj gabinet (pełny adres: ulica, nr, kod, miasto, kraj)
+3. System spróbuje geokodować adres przez Nominatim.
+4. Jeżeli współrzędne są puste — użyj przycisku **Geokoduj**.
+
+Uwaga: Nominatim ma limity. Importuj w partiach.
+
+## Deploy
+### Render.com (rekomendowane)
+Render uruchamia aplikację jako **Web Service** na runtime **Python 3** i startuje ją przez Gunicorn.
+
+**1) Create Web Service**
+- Language/Runtime: **Python 3**
+- Build Command:
+  ```bash
+  pip install -r requirements.txt
+  ```
+- Start Command:
+  ```bash
+  gunicorn app:app
+  ```
+
+**2) Persistent Disk (SQLite + dane z panelu admin)**
+Jeśli chcesz, żeby dane (SQLite) przetrwały deploy/restart, dodaj **Persistent Disk** i ustaw mount path (np. `/var/data`).
+
+W Render -> Twoj serwis -> **Disks**:
+- Add disk
+- Mount path: `/var/data`
+
+Następnie w Render -> **Environment** dodaj:
+- `DATA_DIR` = `/var/data`
+
+**3) Environment Variables (minimum)**
+- `SECRET_KEY` = (Generate)
+- `ADMIN_USER` = (np. twoj_login)
+- `ADMIN_PASS` = (mocne haslo)
+- `CONTACT_EMAIL` = `xlevage@gmail.com` (pokazywany w stopce)
+- `INSTAGRAM_HANDLE` = `xestetik`
+- `INSTAGRAM_URL` = `https://www.instagram.com/xestetik?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==`
+- `NOMINATIM_USER_AGENT` = `xlevage-site/1.0 (contact: xlevage@gmail.com)`
+
+**4) Powiadomienia e‑mail z formularza (opcjonalne, SMTP)**
+Jeżeli chcesz, aby zgłoszenia z formularza przychodziły na e‑mail, skonfiguruj SMTP.
+
+Minimalnie ustaw:
+- `MAIL_TO` = `xlevage@gmail.com`
+- `SMTP_HOST` = `smtp.gmail.com`
+- `SMTP_PORT` = `587`
+- `SMTP_TLS` = `1`
+- `SMTP_USER` = (np. `xlevage@gmail.com`)
+- `SMTP_PASS` = (dla Gmail: **App Password**, nie zwykłe hasło)
+- `SMTP_FROM` = `xlevage@gmail.com` (lub zostaw puste, wtedy użyje `SMTP_USER`)
+
+Jeżeli hostujesz pod domeną, zadbaj o HTTPS (Render daje HTTPS automatycznie dla domeny *.onrender.com).

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% set title = "Polityka cookies — " ~ BRAND %}
+{% block content %}
+<section class="max-w-3xl mx-auto px-4 pt-10 pb-16">
+  <h1 class="text-3xl font-semibold tracking-tight">Polityka cookies</h1>
+  <p class="mt-4 text-slate-600">
+    Serwis może wykorzystywać pliki cookies w celu prawidłowego działania, poprawy jakości usług oraz analityki.
+  </p>
+
+  <div class="mt-8 space-y-6 text-sm text-slate-700">
+    <div>
+      <div class="font-semibold">1. Czym są cookies</div>
+      <p class="mt-2 text-slate-600">Cookies to niewielkie pliki zapisywane na Twoim urządzeniu podczas korzystania ze strony.</p>
+    </div>
+
+    <div>
+      <div class="font-semibold">2. Rodzaje</div>
+      <ul class="mt-2 list-disc list-inside text-slate-600">
+        <li>niezbędne — zapewniają działanie strony (np. sesja panelu admin),</li>
+        <li>funkcjonalne — usprawniają korzystanie,</li>
+        <li>analityczne/marketingowe — jeśli zostaną wdrożone i zaakceptowane.</li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="font-semibold">3. Zarządzanie cookies</div>
+      <p class="mt-2 text-slate-600">
+        Możesz zmienić ustawienia cookies w przeglądarce. Ograniczenie cookies może wpływać na działanie serwisu.
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

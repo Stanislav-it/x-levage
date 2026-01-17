@@ -1,0 +1,136 @@
+/* Small intentional customizations; layout is Tailwind-first */
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body { overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+img, video { max-width: 100%; height: auto; }
+::selection { background: rgba(15, 23, 42, .1); }
+.shadow-soft { box-shadow: 0 20px 60px rgba(2,6,23,.08); }
+
+/* Ensure header sits above page content */
+.site-header{ z-index: 2000; }
+
+/* Mobile menu (rebuilt, robust) */
+.mm-root{ position: fixed; inset: 0; z-index: 99999; display: none; }
+.mm-root.open{ display: block; }
+.mm-backdrop{ position: absolute; inset: 0; background: rgba(2,6,23,.78); }
+.mm-panel{
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  box-shadow: 0 20px 60px rgba(2,6,23,.18);
+  transform: translateX(100%);
+  transition: transform .22s ease;
+  will-change: transform;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-left: 1px solid rgba(226,232,240,.9);
+}
+.mm-root.open .mm-panel{ transform: translateX(0); }
+
+.mm-top{ position: sticky; top: 0; background: #fff; border-bottom: 1px solid rgba(226,232,240,.9); padding: 14px 16px; display:flex; align-items:center; justify-content:space-between; }
+.mm-title{ font-size: 14px; font-weight: 600; color: #0f172a; }
+.mm-close{ height: 36px; width: 36px; border-radius: 14px; border: 1px solid rgba(226,232,240,1); display:inline-flex; align-items:center; justify-content:center; background:#fff; }
+
+.mm-nav{ padding: 14px 12px 22px; display: grid; gap: 8px; }
+.mm-item{ display:block; padding: 12px 14px; border-radius: 18px; color: #0f172a; text-decoration: none; }
+.mm-item:hover{ background: rgba(241,245,249,.9); }
+.mm-item-strong{ background: #0f172a; color: #fff; }
+.mm-item-strong:hover{ background: #111c33; }
+
+.mm-section{ margin-top: 6px; padding-top: 4px; }
+.mm-section-title{ padding: 8px 14px 4px; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(100,116,139,1); }
+
+@media (max-width: 640px){
+  .mm-panel{ max-width: none; }
+}
+
+/* Leaflet preview map */
+.map-preview{ height: 360px; min-height: 260px; width: 100%; }
+.leaflet-container{ font: inherit; }
+
+/* Prevent iOS Safari auto-zoom on inputs (font-size < 16px triggers zoom) */
+@media (max-width: 640px){
+  input, select, textarea { font-size: 16px !important; }
+}
+
+
+
+/* Device storyboard */
+.media-card{
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  background: rgba(248,250,252,1);
+  border: 1px solid rgba(226,232,240,1);
+  box-shadow: 0 18px 50px rgba(2,6,23,.08);
+}
+.media-card img{
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+.media-caption{
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.2;
+  color: rgba(15,23,42,1);
+  background: rgba(255,255,255,.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Mobile horizontal strip (stable layout) */
+.story-strip{
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 2px 2px 10px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.story-card{
+  flex: 0 0 auto;
+  width: 84vw;
+  max-width: 380px;
+  aspect-ratio: 4 / 5;
+  scroll-snap-align: start;
+}
+@media (max-width: 420px){
+  .story-card{ width: 88vw; }
+}
+
+/* MOBILE FIX: avoid horizontal overflow + keep captions inside viewport.
+   On small screens the device section should be a vertical, stable list
+   (no sideways scroll that can feel like "zooming" / floating).
+*/
+@media (max-width: 1024px){
+  .story-strip{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    overflow: visible;
+    padding: 0;
+    scroll-snap-type: none;
+  }
+  .story-card{
+    width: 100%;
+    max-width: none;
+    aspect-ratio: 16 / 10;
+  }
+  .media-caption{
+    position: static;
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-top: 1px solid rgba(226,232,240,1);
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+}

@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% set title = "Mapa gabinetów — " ~ BRAND %}
+{% block head %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+{% endblock %}
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 pt-10 pb-6">
+  <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+    <div>
+      <p class="text-sm text-slate-500 uppercase tracking-wide">Mapa gabinetów</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Ambasadorzy i gabinety autoryzowane</h1>
+      <p class="mt-3 text-slate-600">Kliknij punkt na mapie lub wybierz gabinet z listy.</p>
+    </div>
+
+    <div class="flex gap-2 flex-wrap">
+      <a href="{{ url_for('gabinet', view='ambassadors', q=q) }}" class="px-4 py-2 rounded-xl text-sm {% if view=='ambassadors' %}bg-slate-900 text-white{% else %}border border-slate-200{% endif %}">Ambasadorzy</a>
+      <a href="{{ url_for('gabinet', view='authorized', q=q) }}" class="px-4 py-2 rounded-xl text-sm {% if view=='authorized' %}bg-slate-900 text-white{% else %}border border-slate-200{% endif %}">Autoryzowani</a>
+      <a href="{{ url_for('gabinet', view='all', q=q) }}" class="px-4 py-2 rounded-xl text-sm {% if view=='all' %}bg-slate-900 text-white{% else %}border border-slate-200{% endif %}">Wszystkie</a>
+    </div>
+  </div>
+
+  <form class="mt-6 flex gap-3" method="get" action="{{ url_for('gabinet') }}">
+    <input type="hidden" name="view" value="{{ view }}">
+    <input name="q" value="{{ q }}" placeholder="Szukaj: miasto / nazwa / ulica" class="flex-1 px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
+    <button class="px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800">Szukaj</button>
+  </form>
+</section>
+
+<section class="max-w-6xl mx-auto px-4 pb-12">
+  <div class="grid lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-7">
+      <div class="rounded-3xl border border-slate-100 overflow-hidden shadow-soft">
+        <div id="map" style="height: 520px;"></div>
+      </div>
+      <p class="mt-3 text-xs text-slate-500">
+        Mapy: © OpenStreetMap contributors. Geokodowanie: Nominatim.
+      </p>
+    </div>
+
+    <div class="lg:col-span-5">
+      <div class="rounded-3xl border border-slate-100 overflow-hidden">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+          <div class="text-sm font-semibold">Lista gabinetów</div>
+          <div class="text-xs text-slate-500">{{ clinics|length }} pozycji</div>
+        </div>
+        <div class="max-h-[520px] overflow-auto divide-y divide-slate-100" id="clinicList">
+          {% for c in clinics %}
+            <button type="button"
+              class="w-full text-left p-4 hover:bg-slate-50"
+              data-clinic-id="{{ c.id }}"
+              {% if c.lat and c.lon %}data-lat="{{ c.lat }}" data-lon="{{ c.lon }}"{% endif %}>
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="font-semibold">{{ c.name }}</div>
+                  <div class="mt-1 text-sm text-slate-600">{{ c.address }}</div>
+                  {% if c.city %}<div class="mt-1 text-xs text-slate-500">{{ c.city }}</div>{% endif %}
+                  <div class="mt-2 flex gap-2 flex-wrap text-xs">
+                    <span class="px-2 py-1 rounded-lg border border-slate-200">{{ "Ambasador" if c.kind=="ambassadors" else "Autoryzowany" }}</span>
+                    {% if c.phone %}<span class="px-2 py-1 rounded-lg border border-slate-200">{{ c.phone }}</span>{% endif %}
+                    {% if c.website %}<span class="px-2 py-1 rounded-lg border border-slate-200">www</span>{% endif %}
+                  </div>
+                </div>
+                <div class="text-xs text-slate-400">#{{ c.id }}</div>
+              </div>
+            </button>
+          {% endfor %}
+          {% if not clinics %}
+            <div class="p-6 text-sm text-slate-600">Brak wyników. Zmień filtr lub zapytanie.</div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if is_admin %}
+        <div class="mt-4 rounded-3xl border border-slate-100 p-5 bg-slate-50">
+          <div class="text-sm font-semibold">Panel edycji</div>
+          <p class="mt-1 text-sm text-slate-600">Dodawaj i edytuj adresy w panelu admin.</p>
+          <div class="mt-3">
+            <a class="inline-flex px-4 py-2 rounded-xl bg-slate-900 text-white text-sm" href="{{ url_for('admin_dashboard') }}">Otwórz panel</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  const view = {{ view|tojson }};
+  const q = {{ q|tojson }};
+
+  const map = L.map('map', { scrollWheelZoom: true }).setView([52.237, 21.017], 6); // PL default
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const baseIcon = L.icon({
+    iconUrl: '{{ url_for('static', filename='img/marker.svg') }}',
+    iconSize: [34, 34],
+    iconAnchor: [17, 34],
+    popupAnchor: [0, -30]
+  });
+
+  const markers = new Map();
+
+  function popupHtml(c) {
+    const kind = (c.kind === 'ambassadors') ? 'Gabinet ambasadorski' : 'Gabinet autoryzowany';
+    const phone = c.phone ? `<div class="mt-2 text-sm"><a class="underline" href="tel:${(c.phone||'').replace(/\s/g,'')}">${c.phone}</a></div>` : '';
+    const web = c.website ? `<div class="mt-1 text-sm"><a class="underline" href="${c.website}" target="_blank" rel="noopener">Strona www</a></div>` : '';
+    return `
+      <div style="min-width: 220px">
+        <div style="font-weight: 700">${c.name}</div>
+        <div style="margin-top:4px; color:#334155">${c.address}</div>
+        ${c.city ? `<div style="margin-top:2px; color:#64748b; font-size:12px">${c.city}</div>` : ``}
+        <div style="margin-top:8px; font-size:12px; color:#64748b">${kind}</div>
+        ${phone}
+        ${web}
+      </div>
+    `;
+  }
+
+  async function loadClinics() {
+    const res = await fetch(`/api/clinics?${new URLSearchParams({view, q}).toString()}`);
+    const data = await res.json();
+    const clinics = data.clinics || [];
+    let bounds = [];
+
+    clinics.forEach(c => {
+      if (c.lat && c.lon) {
+        const m = L.marker([c.lat, c.lon], { icon: baseIcon }).addTo(map);
+        m.bindPopup(popupHtml(c));
+        markers.set(String(c.id), m);
+        bounds.push([c.lat, c.lon]);
+      }
+    });
+
+    if (bounds.length) {
+      map.fitBounds(bounds, { padding: [30, 30] });
+    }
+  }
+
+  loadClinics();
+
+  // List -> focus marker
+  document.querySelectorAll('#clinicList [data-clinic-id]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-clinic-id');
+      const m = markers.get(String(id));
+      if (m) {
+        map.setView(m.getLatLng(), 14, { animate: true });
+        m.openPopup();
+      } else {
+        alert('Brak współrzędnych dla tego adresu. (Dodaj w panelu admin i spróbuj geokodowania.)');
+      }
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% set title = "Zastrzeżenia medyczne — " ~ BRAND %}
+{% block content %}
+<section class="max-w-3xl mx-auto px-4 pt-10 pb-16">
+  <h1 class="text-3xl font-semibold tracking-tight">Zastrzeżenia medyczne</h1>
+  <p class="mt-4 text-slate-600">
+    Informacje na stronie mają charakter ogólny i edukacyjny. Nie zastępują konsultacji z lekarzem lub wykwalifikowanym specjalistą.
+  </p>
+
+  <div class="mt-8 space-y-6 text-sm text-slate-700">
+    <div>
+      <div class="font-semibold">1. Brak porady medycznej</div>
+      <p class="mt-2 text-slate-600">
+        Treści nie stanowią porady medycznej ani rekomendacji terapii. Decyzje kliniczne powinny być podejmowane indywidualnie.
+      </p>
+    </div>
+
+    <div>
+      <div class="font-semibold">2. Efekty</div>
+      <p class="mt-2 text-slate-600">
+        Efekty zabiegów mogą różnić się w zależności od stanu skóry, parametrów, protokołu i innych czynników.
+      </p>
+    </div>
+
+    <div>
+      <div class="font-semibold">3. Dokumentacja</div>
+      <p class="mt-2 text-slate-600">
+        Parametry techniczne i wskazania należy weryfikować w aktualnej dokumentacji urządzenia oraz zgodnie z lokalnymi przepisami.
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

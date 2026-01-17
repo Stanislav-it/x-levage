@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% set title = "Admin — gabinety" %}
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 pt-10 pb-6">
+  <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+    <div>
+      <p class="text-sm text-slate-500 uppercase tracking-wide">Panel admin</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Gabinety</h1>
+      <p class="mt-3 text-slate-600">Dodawaj, edytuj i geokoduj adresy. Dane zapisują się w <span class="font-mono">instance/app.db</span>.</p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <a href="{{ url_for('admin_clinic_new') }}" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm">+ Dodaj gabinet</a>
+      <a href="{{ url_for('admin_import') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-sm">Import</a>
+      <a href="{{ url_for('gabinet', view='all') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-sm">Podgląd mapy</a>
+    </div>
+  </div>
+
+  <form class="mt-6 flex gap-3" method="get" action="{{ url_for('admin_dashboard') }}">
+    <input name="q" value="{{ q }}" placeholder="Szukaj" class="flex-1 px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
+    <select name="view" class="px-4 py-3 rounded-2xl border border-slate-200">
+      <option value="all" {% if view=='all' %}selected{% endif %}>Wszystkie</option>
+      <option value="ambassadors" {% if view=='ambassadors' %}selected{% endif %}>Ambasadorzy</option>
+      <option value="authorized" {% if view=='authorized' %}selected{% endif %}>Autoryzowane</option>
+    </select>
+    <button class="px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800">Filtruj</button>
+  </form>
+</section>
+
+<section class="max-w-6xl mx-auto px-4 pb-16">
+  <div class="rounded-3xl border border-slate-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+          <tr class="[&>th]:text-left [&>th]:font-semibold [&>th]:px-4 [&>th]:py-3">
+            <th>ID</th>
+            <th>Typ</th>
+            <th>Nazwa</th>
+            <th>Adres</th>
+            <th>Miasto</th>
+            <th>Lat/Lon</th>
+            <th class="w-52">Akcje</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for c in clinics %}
+            <tr class="[&>td]:px-4 [&>td]:py-3 {% if request.args.get('highlight') == c.id|string %}bg-emerald-50{% endif %}">
+              <td class="text-slate-500">#{{ c.id }}</td>
+              <td>
+                <span class="px-2 py-1 rounded-lg border border-slate-200">
+                  {{ "Ambasador" if c.kind=="ambassadors" else "Autoryzowany" }}
+                </span>
+              </td>
+              <td class="font-semibold">{{ c.name }}</td>
+              <td class="text-slate-700">{{ c.address }}</td>
+              <td class="text-slate-600">{{ c.city }}</td>
+              <td class="text-slate-600">
+                {% if c.lat and c.lon %}
+                  {{ "%.5f"|format(c.lat) }}, {{ "%.5f"|format(c.lon) }}
+                {% else %}
+                  <span class="text-rose-700">brak</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="flex gap-2 flex-wrap">
+                  <a class="px-3 py-2 rounded-xl border border-slate-200 hover:border-slate-300" href="{{ url_for('admin_clinic_edit', cid=c.id) }}">Edytuj</a>
+                  <button class="px-3 py-2 rounded-xl border border-slate-200 hover:border-slate-300" type="button" onclick="geocode({{ c.id }})">Geokoduj</button>
+                  <form method="post" action="{{ url_for('admin_clinic_delete', cid=c.id) }}" onsubmit="return confirm('Usunąć gabinet?')">
+                    <button class="px-3 py-2 rounded-xl bg-rose-600 text-white hover:bg-rose-700">Usuń</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+          {% if not clinics %}
+            <tr><td colspan="7" class="px-4 py-8 text-slate-600">Brak danych.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    async function geocode(id) {
+      const res = await fetch(`/admin/geocode/${id}`, { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        alert(`OK: ${data.lat.toFixed(5)}, ${data.lon.toFixed(5)}`);
+        location.reload();
+      } else {
+        alert('Nie udało się zgeokodować adresu. Sprawdź zapis adresu i spróbuj ponownie.');
+      }
+    }
+  </script>
+</section>
+{% endblock %}

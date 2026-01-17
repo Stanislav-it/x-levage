@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% if clinic %}
+  {% set title = "Edytuj gabinet — Admin" %}
+{% else %}
+  {% set title = "Nowy gabinet — Admin" %}
+{% endif %}
+{% block content %}
+<section class="max-w-3xl mx-auto px-4 pt-10 pb-16">
+  <div class="flex items-end justify-between gap-4">
+    <div>
+      <p class="text-sm text-slate-500 uppercase tracking-wide">Panel admin</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">
+        {% if clinic %}Edytuj gabinet #{{ clinic.id }}{% else %}Nowy gabinet{% endif %}
+      </h1>
+      <p class="mt-2 text-slate-600">Wpisz adres w możliwie pełnej formie (ulica, nr, kod, miasto, kraj).</p>
+    </div>
+    <a href="{{ url_for('admin_dashboard') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-sm">← Wróć</a>
+  </div>
+
+  <form class="mt-8 grid gap-4" method="post" action="{% if clinic %}{{ url_for('admin_clinic_edit_post', cid=clinic.id) }}{% else %}{{ url_for('admin_clinic_new_post') }}{% endif %}">
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="text-xs text-slate-500">Typ</label>
+        <select name="kind" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200">
+          <option value="ambassadors" {% if clinic and clinic.kind=='ambassadors' %}selected{% endif %}>Gabinet ambasadorski</option>
+          <option value="authorized" {% if not clinic or clinic.kind=='authorized' %}selected{% endif %}>Gabinet autoryzowany</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs text-slate-500">Miasto (opcjonalnie)</label>
+        <input name="city" value="{{ clinic.city if clinic else '' }}" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200" placeholder="np. Warszawa">
+      </div>
+    </div>
+
+    <div>
+      <label class="text-xs text-slate-500">Nazwa</label>
+      <input name="name" required value="{{ clinic.name if clinic else '' }}" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200" placeholder="Nazwa gabinetu">
+    </div>
+
+    <div>
+      <label class="text-xs text-slate-500">Adres</label>
+      <input name="address" required value="{{ clinic.address if clinic else '' }}" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200" placeholder="Ulica, numer, kod, miasto, kraj">
+      <div class="mt-2 text-xs text-slate-500">
+        Wskazówka: jeśli geokodowanie nie działa, dopisz kod pocztowy i kraj (np. Poland).
+      </div>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="text-xs text-slate-500">Telefon (opcjonalnie)</label>
+        <input name="phone" value="{{ clinic.phone if clinic else '' }}" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200" placeholder="+48 ...">
+      </div>
+      <div>
+        <label class="text-xs text-slate-500">WWW (opcjonalnie)</label>
+        <input name="website" value="{{ clinic.website if clinic else '' }}" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200" placeholder="https://...">
+      </div>
+    </div>
+
+    <div>
+      <label class="text-xs text-slate-500">Notatki (opcjonalnie)</label>
+      <textarea name="notes" rows="3" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200" placeholder="np. godziny otwarcia">{{ clinic.notes if clinic else '' }}</textarea>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="text-xs text-slate-500">Lat (opcjonalnie)</label>
+        <input name="lat" value="{{ clinic.lat if clinic else '' }}" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200" placeholder="52.2297">
+      </div>
+      <div>
+        <label class="text-xs text-slate-500">Lon (opcjonalnie)</label>
+        <input name="lon" value="{{ clinic.lon if clinic else '' }}" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200" placeholder="21.0122">
+      </div>
+    </div>
+
+    <div class="flex gap-3 flex-wrap pt-2">
+      <button class="px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800">Zapisz</button>
+      {% if clinic %}
+        <button type="button" class="px-5 py-3 rounded-2xl border border-slate-200" onclick="geocodeNow({{ clinic.id }})">Geokoduj teraz</button>
+        <a href="{{ url_for('gabinet', view='all') }}" class="px-5 py-3 rounded-2xl border border-slate-200">Podgląd mapy</a>
+      {% endif %}
+    </div>
+  </form>
+
+  {% if clinic %}
+  <script>
+    async function geocodeNow(id) {
+      const res = await fetch(`/admin/geocode/${id}`, { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        alert(`OK: ${data.lat.toFixed(5)}, ${data.lon.toFixed(5)}`);
+        location.reload();
+      } else {
+        alert('Nie udało się zgeokodować adresu. Uzupełnij adres i spróbuj ponownie.');
+      }
+    }
+  </script>
+  {% endif %}
+</section>
+{% endblock %}

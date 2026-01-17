@@ -1,0 +1,61 @@
+services:
+  - type: web
+    name: x-levage
+    runtime: python
+    plan: free
+    region: virginia
+
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1
+
+    envVars:
+      - key: DATA_DIR
+        value: /var/data
+
+      - key: SECRET_KEY
+        generateValue: true
+
+      - key: ADMIN_USER
+        sync: false
+
+      - key: ADMIN_PASS
+        sync: false
+
+      - key: CONTACT_EMAIL
+        value: xlevage@gmail.com
+
+      - key: INSTAGRAM_HANDLE
+        value: xestetik
+
+      - key: INSTAGRAM_URL
+        value: https://www.instagram.com/xestetik?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==
+
+      # Contact form email delivery (SMTP). For Gmail you typically need an App Password.
+      - key: MAIL_TO
+        value: xlevage@gmail.com
+
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+
+      - key: SMTP_PORT
+        value: "587"
+
+      - key: SMTP_TLS
+        value: "1"
+
+      - key: SMTP_USER
+        sync: false
+
+      - key: SMTP_PASS
+        sync: false
+
+      - key: SMTP_FROM
+        value: xlevage@gmail.com
+
+      - key: NOMINATIM_USER_AGENT
+        value: xlevage-site/1.0 (contact: xlevage@gmail.com)

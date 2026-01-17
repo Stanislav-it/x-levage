@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% set title = "Regulamin — " ~ BRAND %}
+{% block content %}
+<section class="max-w-3xl mx-auto px-4 pt-10 pb-16">
+  <h1 class="text-3xl font-semibold tracking-tight">Regulamin</h1>
+  <p class="mt-4 text-slate-600">
+    Regulamin określa zasady korzystania ze strony informacyjnej {{ BRAND }}.
+  </p>
+
+  <div class="mt-8 space-y-6 text-sm text-slate-700">
+    <div>
+      <div class="font-semibold">1. Charakter serwisu</div>
+      <p class="mt-2 text-slate-600">
+        Serwis ma charakter informacyjny. Nie stanowi oferty w rozumieniu Kodeksu cywilnego.
+      </p>
+    </div>
+
+    <div>
+      <div class="font-semibold">2. Prawa autorskie</div>
+      <p class="mt-2 text-slate-600">
+        Materiały (teksty, grafiki, zdjęcia) są chronione prawem autorskim. Zakazane jest kopiowanie bez zgody uprawnionych.
+      </p>
+    </div>
+
+    <div>
+      <div class="font-semibold">3. Odpowiedzialność</div>
+      <p class="mt-2 text-slate-600">
+        Administrator dokłada starań, aby informacje były aktualne, jednak nie gwarantuje kompletności. Szczegóły techniczne i medyczne weryfikuj w dokumentacji i u specjalistów.
+      </p>
+    </div>
+
+    <div>
+      <div class="font-semibold">4. Kontakt</div>
+      <p class="mt-2 text-slate-600">W sprawach serwisu — kontakt w stopce strony.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

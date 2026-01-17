@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% set title = "X‑Levage Pro — Laser tulowy 1927 nm" %}
+{% set meta_description = "Laser tulowy 1927 nm – zastosowania, efekty i specyfikacja." %}
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 pt-10 pb-10">
+  <div class="grid lg:grid-cols-12 gap-10">
+    <div class="lg:col-span-7">
+      <p class="text-sm text-slate-500 uppercase tracking-wide">Laser tulowy</p>
+      <h1 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight">X‑Levage Pro (1927 nm)</h1>
+      <p class="mt-4 text-slate-600 leading-relaxed">
+        Długość fali 1927 nm oddziałuje na obszar naskórka i górne warstwy skóry właściwej — ukierunkowując przebarwienia,
+        poprawiając teksturę i stymulując przebudowę.
+      </p>
+
+      <div class="mt-8 grid sm:grid-cols-3 gap-4">
+        <div class="rounded-2xl border border-slate-100 p-4">
+          <div class="text-xs text-slate-500">Fala</div>
+          <div class="mt-1 font-semibold">1927 nm</div>
+        </div>
+        <div class="rounded-2xl border border-slate-100 p-4">
+          <div class="text-xs text-slate-500">Tryb</div>
+          <div class="mt-1 font-semibold">Nieablacyjny / mikroablacyjny</div>
+        </div>
+        <div class="rounded-2xl border border-slate-100 p-4">
+          <div class="text-xs text-slate-500">Downtime</div>
+          <div class="mt-1 font-semibold">Krótki</div>
+        </div>
+      </div>
+
+      
+      
+    <!-- Storyboard Intro -->
+    
+<section id="urzadzenie" class="mt-10 scroll-mt-24">
+  <div class="flex items-end justify-between gap-6">
+    <div>
+      <h2 class="text-2xl font-semibold tracking-tight">Poznaj urządzenie</h2>
+      <p class="mt-2 text-slate-600 max-w-2xl">X‑Levage Pro to frakcyjny laser tulowy 1927 nm. Poniżej szybka prezentacja urządzenia oraz materiałów aplikacyjnych.</p>
+    </div>
+  </div>
+
+  <!-- Mobile: storyboard (horizontal, stable) -->
+  <div class="story-strip mt-6 lg:hidden" aria-label="Galeria urządzenia">
+    <figure class="media-card story-card">
+            <img src="{{ url_for('static', filename='fotos/pro_duo_banner.jpg') }}" alt="X‑Levage Pro — system i końcówki" loading="lazy">
+            <figcaption class="media-caption">X‑Levage Pro — system zabiegowy</figcaption>
+          </figure>
+<figure class="media-card story-card">
+            <img src="{{ url_for('static', filename='fotos/pro_black_front.jpg') }}" alt="X‑Levage Pro — widok przód (czarny)" loading="lazy">
+            <figcaption class="media-caption">Widok frontowy</figcaption>
+          </figure>
+<figure class="media-card story-card">
+            <img src="{{ url_for('static', filename='fotos/pro_black_angle.jpg') }}" alt="X‑Levage Pro — ujęcie pod kątem" loading="lazy">
+            <figcaption class="media-caption">Ujęcie pod kątem</figcaption>
+          </figure>
+<figure class="media-card story-card">
+            <img src="{{ url_for('static', filename='fotos/pro_clinic.jpg') }}" alt="X‑Levage Pro — w gabinecie" loading="lazy">
+            <figcaption class="media-caption">W gabinecie</figcaption>
+          </figure>
+<figure class="media-card story-card">
+            <img src="{{ url_for('static', filename='fotos/pro_model.jpg') }}" alt="X‑Levage Pro — materiał promocyjny" loading="lazy">
+            <figcaption class="media-caption">Materiały promocyjne</figcaption>
+          </figure>
+<figure class="media-card story-card">
+            <img src="{{ url_for('static', filename='fotos/pro_collage_results.jpg') }}" alt="Przykładowe efekty zabiegów" loading="lazy">
+            <figcaption class="media-caption">Efekty „przed/po”</figcaption>
+          </figure>
+  </div>
+
+  <!-- Desktop -->
+  
+      <div class="hidden lg:grid mt-6 gap-4 lg:grid-cols-12">
+        <figure class="media-card lg:col-span-12 aspect-[21/9]">
+          <img src="{{ url_for('static', filename='fotos/pro_duo_banner.jpg') }}" alt="X‑Levage Pro — system zabiegowy" loading="lazy">
+          <figcaption class="media-caption">X‑Levage Pro — system zabiegowy</figcaption>
+        </figure>
+
+        <figure class="media-card lg:col-span-4 aspect-[3/4]">
+          <img src="{{ url_for('static', filename='fotos/pro_black_front.jpg') }}" alt="X‑Levage Pro — widok frontowy" loading="lazy">
+          <figcaption class="media-caption">Widok frontowy</figcaption>
+        </figure>
+
+        <figure class="media-card lg:col-span-4 aspect-[3/4]">
+          <img src="{{ url_for('static', filename='fotos/pro_black_angle.jpg') }}" alt="X‑Levage Pro — ujęcie pod kątem" loading="lazy">
+          <figcaption class="media-caption">Ujęcie pod kątem</figcaption>
+        </figure>
+
+        <figure class="media-card lg:col-span-4 aspect-[3/4]">
+          <img src="{{ url_for('static', filename='fotos/pro_clinic.jpg') }}" alt="X‑Levage Pro — w gabinecie" loading="lazy">
+          <figcaption class="media-caption">W gabinecie</figcaption>
+        </figure>
+
+        <figure class="media-card lg:col-span-5 aspect-[4/5]">
+          <img src="{{ url_for('static', filename='fotos/pro_model.jpg') }}" alt="X‑Levage Pro — materiały promocyjne" loading="lazy">
+          <figcaption class="media-caption">Materiały promocyjne</figcaption>
+        </figure>
+
+        <figure class="media-card lg:col-span-7 aspect-[16/9]">
+          <img src="{{ url_for('static', filename='fotos/pro_collage_results.jpg') }}" alt="Przykładowe efekty zabiegów" loading="lazy">
+          <figcaption class="media-caption">Efekty „przed/po”</figcaption>
+        </figure>
+      </div>
+
+</section>
+
+
+<div class="mt-10 grid gap-8">
+        <div class="rounded-3xl border border-slate-100 p-6">
+          <h2 class="text-lg font-semibold">Zastosowanie</h2>
+          <ul class="mt-3 grid sm:grid-cols-2 gap-2 text-sm text-slate-700 list-disc list-inside">
+            <li>Suche linie, drobne zmarszczki, wiotkość skóry</li>
+            <li>Rozjaśnienie skóry, nierówny koloryt</li>
+            <li>Blizny potrądzikowe i chirurgiczne</li>
+            <li>Przebarwienia: piegi, ostuda, melasma, plamy posłoneczne</li>
+            <li>Rozszerzone pory, szorstka skóra</li>
+            <li>Wspomaganie regeneracji kolagenu</li>
+          </ul>
+        </div>
+
+        <div class="rounded-3xl border border-slate-100 p-6">
+          <h2 class="text-lg font-semibold">Cechy i zalety</h2>
+          <ul class="mt-3 grid gap-2 text-sm text-slate-700 list-disc list-inside">
+            <li>Podwójny efekt ablacyjny i nieablacyjny (krótsza rekonwalescencja).</li>
+            <li>Szerokość impulsu 0,1 ms–5 ms — mniejszy dyskomfort.</li>
+            <li>Inteligentny, przyjazny interfejs użytkownika.</li>
+            <li>Głowice zabiegowe: frakcyjna oraz frakcyjna z rolkami.</li>
+            <li>Długowieczność włókna tulowego — niskie koszty utrzymania.</li>
+          </ul>
+        </div>
+
+        <div class="rounded-3xl border border-slate-100 p-6">
+          <h2 class="text-lg font-semibold">Specyfikacja (skrót)</h2>
+          <div class="mt-4 overflow-x-auto">
+            <table class="w-full text-sm">
+              <tbody class="[&>tr>td]:py-2 [&>tr>td:first-child]:text-slate-500 [&>tr>td:first-child]:w-56">
+                <tr><td>Długość fali</td><td class="font-semibold">1927 nm</td></tr>
+                <tr><td>Moc lasera</td><td class="font-semibold">15 W</td></tr>
+                <tr><td>Dostarczanie wiązki</td><td>włókno</td></tr>
+                <tr><td>Rozmiar plamki</td><td>0–200 µm</td></tr>
+                <tr><td>Odległość plamki</td><td>0,1 mm – 2 mm</td></tr>
+                <tr><td>Szerokość impulsu</td><td>0,1 ms – 5 ms</td></tr>
+                <tr><td>Rozmiar skanowania</td><td>1×1 mm – 20×20 mm</td></tr>
+                <tr><td>Tryb skanowania</td><td>kolejność / środek / losowy</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4 text-xs text-slate-500">
+            Pełne parametry mogą różnić się w zależności od konfiguracji i dokumentacji producenta.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-5">
+      <div class="rounded-3xl border border-slate-100 p-6 shadow-soft lg:sticky lg:top-24">
+        <div class="text-sm text-slate-500">Następny krok</div>
+        <div class="mt-2 text-xl font-semibold">Znajdź gabinet z X‑Levage</div>
+        <p class="mt-2 text-sm text-slate-600">
+          Sprawdź gabinety ambasadorskie i autoryzowane na mapie.
+        </p>
+        <div class="mt-5 grid gap-3">
+          <a href="{{ url_for('gabinet', view='ambassadors') }}" class="px-4 py-3 rounded-2xl bg-slate-900 text-white text-center hover:bg-slate-800">Mapa gabinetów ambasadorskich</a>
+          <a href="{{ url_for('gabinet', view='authorized') }}" class="px-4 py-3 rounded-2xl border border-slate-200 text-center hover:border-slate-300">Mapa gabinetów autoryzowanych</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="efekty" class="max-w-6xl mx-auto px-4 py-10" data-effects-gallery data-initial="8" data-step="8">
+  <div class="flex items-end justify-between gap-6">
+    <div>
+      <div class="flex items-center gap-3">
+        <h2 class="text-2xl font-semibold tracking-tight">Efekty zabiegów</h2>
+        {% if effects %}
+          <span class="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600">
+            {{ effects|length }} zdjęć
+          </span>
+        {% endif %}
+      </div>
+      <p class="mt-2 text-slate-600">Przykładowe zdjęcia „przed/po”.</p>
+    </div>
+  </div>
+  {% if effects %}
+    <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3" data-effects-grid>
+      {% for src in effects %}
+        <a href="{{ src }}" target="_blank" data-effects-item
+           class="group block overflow-hidden rounded-2xl border border-slate-100 bg-slate-50 {% if loop.index0 >= 8 %}hidden{% endif %}">
+          <img src="{{ src }}" alt="Efekt zabiegu" loading="lazy" class="w-full h-48 object-cover group-hover:scale-[1.02] transition">
+        </a>
+      {% endfor %}
+    </div>
+
+    {% if effects|length > 8 %}
+      <div class="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="text-sm text-slate-600">
+          Pokazano <span class="font-semibold text-slate-900" data-effects-shown>8</span>
+          z <span class="font-semibold text-slate-900" data-effects-total>{{ effects|length }}</span>
+        </div>
+        <button type="button" class="inline-flex items-center justify-center px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800" data-effects-more>
+          Pokaż więcej
+        </button>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="mt-6 rounded-2xl border border-dashed border-slate-200 p-8 text-slate-600">
+      Brak plików w <span class="font-mono">static/efekty_zabiegow</span>.
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

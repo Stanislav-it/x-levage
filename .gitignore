@@ -1,0 +1,25 @@
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# Environment / secrets
+.env
+
+# SQLite / app data (store on Render Persistent Disk instead)
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Build artifacts
+*.log
