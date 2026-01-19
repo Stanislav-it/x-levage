@@ -12,13 +12,14 @@
 </head>
 <body class="bg-white text-slate-900 antialiased">
   <header class="site-header sticky top-0 bg-white/80 backdrop-blur border-b border-slate-100">
-    <div class="max-w-6xl mx-auto px-4 py-2 md:py-3 flex items-center justify-between gap-3">
+    <!-- Thinner header: smaller vertical padding + compact logo/typography -->
+    <div class="max-w-6xl mx-auto px-4 py-1.5 md:py-2 flex items-center justify-between gap-3">
       <a href="{{ url_for('index') }}" class="flex items-center gap-3">
-        <div class="h-8 w-8 md:h-9 md:w-9 rounded-xl bg-slate-900 text-white grid place-items-center font-semibold tracking-tight">X</div>
+        <div class="h-7 w-7 md:h-8 md:w-8 rounded-lg bg-slate-900 text-white grid place-items-center font-semibold tracking-tight">X</div>
         <div class="leading-tight">
-          <div class="text-[11px] md:text-sm uppercase tracking-wide text-slate-500">{{ BRAND }}</div>
-          <div class="text-sm font-semibold sm:hidden">X‑Levage</div>
-          <div class="hidden sm:block text-base font-semibold">Laser Tulowy & Erbowo‑szklany</div>
+          <div class="text-[10px] md:text-xs uppercase tracking-wide text-slate-500">{{ BRAND }}</div>
+          <div class="text-[13px] font-semibold sm:hidden">X‑Levage</div>
+          <div class="hidden sm:block text-[15px] font-semibold">Laser Tulowy & Erbowo‑szklany</div>
         </div>
       </a>
 
@@ -39,7 +40,12 @@
           </svg>
         </button>
 
-        {% if is_admin %}
+        {#
+          IMPORTANT UX:
+          Do not show admin actions (Panel/Wyloguj) on public pages.
+          They are visible only inside /admin/* routes.
+        #}
+        {% if is_admin and request.path.startswith('/admin') %}
           <a href="{{ url_for('admin_dashboard') }}" class="hidden sm:inline-flex px-3 py-2 rounded-xl border border-slate-200 text-sm hover:border-slate-300">Panel</a>
           <form method="post" action="{{ url_for('admin_logout') }}">
             <button class="px-3 py-2 rounded-xl bg-slate-900 text-white text-sm hover:bg-slate-800">Wyloguj</button>
