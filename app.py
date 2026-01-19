@@ -111,6 +111,9 @@ def create_app():
         # These directories will be created under the DATA_DIR root if available
         # (recommended on Render: /var/data).
         LEADS_DIR=os.environ.get("LEADS_DIR", os.path.join(os.path.dirname(instance_dir), "leads")),
+        # Optional: append-only JSONL archive (one JSON object per line).
+        # If not provided, defaults to ${LEADS_DIR}/leads.jsonl
+        LEADS_JSONL_PATH=os.environ.get("LEADS_JSONL_PATH", ""),
         MAIL_ARCHIVE_DIR=os.environ.get("MAIL_ARCHIVE_DIR", os.path.join(os.path.dirname(instance_dir), "mail_archive")),
 
         # Branding / contact
@@ -140,6 +143,10 @@ def create_app():
             "xlevage-site/1.0 (contact: xlevage@gmail.com)",
         ),
     )
+
+    # If JSONL path is not explicitly set, default it under LEADS_DIR.
+    if not (app.config.get("LEADS_JSONL_PATH") or "").strip():
+        app.config["LEADS_JSONL_PATH"] = os.path.join(app.config.get("LEADS_DIR") or "", "leads.jsonl")
     # Ensure instance dir exists (resolve_storage_paths already does, but keep safe)
     os.makedirs(instance_dir, exist_ok=True)
     # Ensure data directories exist (best-effort)
@@ -220,13 +227,15 @@ def create_app():
         It is best-effort and must never break the user flow.
         """
         leads_dir = (app.config.get('LEADS_DIR') or '').strip()
-        if not leads_dir:
+        jsonl_path = (app.config.get('LEADS_JSONL_PATH') or '').strip()
+        if not leads_dir and not jsonl_path:
             return
         try:
-            os.makedirs(leads_dir, exist_ok=True)
+            if leads_dir:
+                os.makedirs(leads_dir, exist_ok=True)
+            if jsonl_path:
+                os.makedirs(os.path.dirname(jsonl_path), exist_ok=True)
             safe_ts = created_at.replace(':', '').replace('-', '').replace('T', '_')
-            fn = f"lead_{lead_id}_{safe_ts}.json"
-            path = os.path.join(leads_dir, fn)
             import json
             payload = {
                 'id': int(lead_id),
@@ -236,8 +245,19 @@ def create_app():
                 'phone': phone,
                 'message': message,
             }
-            with open(path, 'w', encoding='utf-8') as f:
-                json.dump(payload, f, ensure_ascii=False, indent=2)
+
+            # 1) Per-lead JSON file (easy to browse)
+            if leads_dir:
+                fn = f"lead_{lead_id}_{safe_ts}.json"
+                path = os.path.join(leads_dir, fn)
+                with open(path, 'w', encoding='utf-8') as f:
+                    json.dump(payload, f, ensure_ascii=False, indent=2)
+
+            # 2) Append-only JSONL file (easy to backup/grep)
+            if jsonl_path:
+                with open(jsonl_path, 'a', encoding='utf-8') as f:
+                    f.write(json.dumps(payload, ensure_ascii=False))
+                    f.write("\n")
         except Exception as exc:
             print(f"[WARN] Failed to archive lead to disk: {exc}")
 
