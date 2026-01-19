@@ -5,8 +5,8 @@
   {% set title = "Nowy gabinet — Admin" %}
 {% endif %}
 {% block content %}
-<section class="max-w-3xl mx-auto px-4 pt-10 pb-16">
-  <div class="flex items-end justify-between gap-4">
+<section class="max-w-3xl mx-auto px-4 pt-10 pb-16 admin-edit-clinic">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
     <div>
       <p class="text-sm text-slate-500 uppercase tracking-wide">Panel admin</p>
       <h1 class="mt-2 text-3xl font-semibold tracking-tight">
@@ -14,7 +14,7 @@
       </h1>
       <p class="mt-2 text-slate-600">Wpisz adres w możliwie pełnej formie (ulica, nr, kod, miasto, kraj).</p>
     </div>
-    <a href="{{ url_for('admin_dashboard') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-sm">← Wróć</a>
+    <a href="{{ url_for('admin_dashboard') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-sm w-full sm:w-auto text-center">← Wróć</a>
   </div>
 
   <form class="mt-8 grid gap-4" method="post" action="{% if clinic %}{{ url_for('admin_clinic_edit_post', cid=clinic.id) }}{% else %}{{ url_for('admin_clinic_new_post') }}{% endif %}">
@@ -72,11 +72,11 @@
       </div>
     </div>
 
-    <div class="flex gap-3 flex-wrap pt-2">
-      <button class="px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800">Zapisz</button>
+    <div class="flex gap-3 flex-wrap pt-2 admin-form-actions">
+      <button class="px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800 w-full sm:w-auto">Zapisz</button>
       {% if clinic %}
-        <button type="button" class="px-5 py-3 rounded-2xl border border-slate-200" onclick="geocodeNow({{ clinic.id }})">Geokoduj teraz</button>
-        <a href="{{ url_for('gabinet', view='all') }}" class="px-5 py-3 rounded-2xl border border-slate-200">Podgląd mapy</a>
+        <button type="button" class="px-5 py-3 rounded-2xl border border-slate-200 w-full sm:w-auto" onclick="geocodeNow({{ clinic.id }})">Geokoduj teraz</button>
+        <a href="{{ url_for('gabinet', view='all') }}" class="px-5 py-3 rounded-2xl border border-slate-200 w-full sm:w-auto text-center">Podgląd mapy</a>
       {% endif %}
     </div>
   </form>

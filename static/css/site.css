@@ -56,6 +56,31 @@ img, video { max-width: 100%; height: auto; }
   input, select, textarea { font-size: 16px !important; }
 }
 
+/* Admin: mobile ergonomics */
+.admin-notifications-cards{ display: block; }
+.admin-notifications-table-wrap{ display: none; }
+
+@media (min-width: 640px){
+  .admin-notifications-cards{ display: none; }
+  .admin-notifications-table-wrap{ display: block; }
+}
+
+@media (max-width: 640px){
+  /* Sticky action bar on the clinic edit form */
+  .admin-edit-clinic{ padding-bottom: 110px; }
+  .admin-form-actions{
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+    background: rgba(255,255,255,.96);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(226,232,240,1);
+    padding: 12px 16px;
+    margin-left: -16px;
+    margin-right: -16px;
+  }
+}
+
 
 
 /* Device storyboard */
