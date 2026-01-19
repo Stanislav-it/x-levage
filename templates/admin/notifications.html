@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% set title = "Admin — powiadomienia" %}
+
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 pt-10 pb-6">
+  <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+    <div>
+      <p class="text-sm text-slate-500 uppercase tracking-wide">Panel admin</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Powiadomienia</h1>
+      <p class="mt-3 text-slate-600">
+        Lista zgłoszeń z formularza kontaktowego. Kliknij <span class="font-semibold">Odpowiedz</span>, aby otworzyć klienta poczty i napisać bezpośrednio do klienta.
+      </p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <a href="{{ url_for('admin_dashboard') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-sm">← Gabinety</a>
+      <a href="{{ url_for('index') }}#kontakt" class="px-4 py-2 rounded-xl border border-slate-200 text-sm">Formularz</a>
+    </div>
+  </div>
+
+  <form class="mt-6 flex gap-3" method="get" action="{{ url_for('admin_notifications') }}">
+    <input name="q" value="{{ q }}" placeholder="Szukaj (imię, email, telefon, tekst)" class="flex-1 px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
+    <button class="px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800">Szukaj</button>
+  </form>
+
+  {% if total is not none %}
+    <div class="mt-3 text-sm text-slate-500">Łącznie: {{ total }}{% if q %} (filtr: “{{ q }}”){% endif %}</div>
+  {% endif %}
+</section>
+
+<section class="max-w-6xl mx-auto px-4 pb-16">
+  <div class="rounded-3xl border border-slate-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-slate-600">
+          <tr class="[&>th]:text-left [&>th]:font-semibold [&>th]:px-4 [&>th]:py-3">
+            <th class="w-20">ID</th>
+            <th class="w-44">Czas (UTC)</th>
+            <th class="w-56">Klient</th>
+            <th class="w-60">Kontakt</th>
+            <th>Treść</th>
+            <th class="w-40">Akcje</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for l in leads %}
+            {% set subject = 'Re: Zapytanie #' ~ l.id ~ ' — ' ~ BRAND %}
+            {% set body = 'Cześć ' ~ (l.name or '') ~ '\n\nDziękujemy za wiadomość. Odpowiadamy poniżej.\n\n---\nTwoje zgłoszenie (UTC: ' ~ (l.created_at or '') ~ '):\n' ~ (l.message or '-') ~ '\n\nKontakt: ' ~ (l.phone or '-') ~ ' / ' ~ (l.email or '-') ~ '\n' %}
+            <tr class="[&>td]:px-4 [&>td]:py-3 align-top">
+              <td class="text-slate-500">#{{ l.id }}</td>
+              <td class="text-slate-600 font-mono">{{ l.created_at }}</td>
+              <td>
+                <div class="font-semibold text-slate-900">{{ l.name or '—' }}</div>
+              </td>
+              <td class="text-slate-700">
+                {% if l.email %}
+                  <div>E‑mail: <a class="underline" href="mailto:{{ l.email }}">{{ l.email }}</a></div>
+                {% else %}
+                  <div>E‑mail: —</div>
+                {% endif %}
+                {% if l.phone %}
+                  <div class="mt-1">Tel: <a class="underline" href="tel:{{ (l.phone or '')|replace(' ','') }}">{{ l.phone }}</a></div>
+                {% else %}
+                  <div class="mt-1">Tel: —</div>
+                {% endif %}
+              </td>
+              <td class="text-slate-800">
+                <details class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                  <summary class="cursor-pointer text-slate-700 select-none">Podgląd</summary>
+                  <div class="mt-3 whitespace-pre-wrap text-slate-900">{{ l.message or '—' }}</div>
+                </details>
+              </td>
+              <td>
+                <div class="flex flex-col gap-2">
+                  {% if l.email %}
+                    <a class="px-3 py-2 rounded-xl bg-slate-900 text-white text-sm text-center hover:bg-slate-800" href="{{ mailto_link(l.email, subject, body) }}">Odpowiedz</a>
+                  {% else %}
+                    <span class="px-3 py-2 rounded-xl border border-slate-200 text-sm text-center text-slate-500">Brak e‑mail</span>
+                  {% endif %}
+                  {% if l.phone %}
+                    <a class="px-3 py-2 rounded-xl border border-slate-200 text-sm text-center hover:border-slate-300" href="tel:{{ (l.phone or '')|replace(' ','') }}">Zadzwoń</a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+          {% if not leads %}
+            <tr><td colspan="6" class="px-4 py-8 text-slate-600">Brak zgłoszeń.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if total_pages and total_pages > 1 %}
+    <div class="mt-6 flex items-center justify-between text-sm">
+      <div class="text-slate-600">Strona {{ page }} z {{ total_pages }}</div>
+      <div class="flex gap-2">
+        {% if page > 1 %}
+          <a class="px-4 py-2 rounded-xl border border-slate-200 hover:border-slate-300" href="{{ url_for('admin_notifications', page=page-1, q=q) }}">← Poprzednia</a>
+        {% endif %}
+        {% if page < total_pages %}
+          <a class="px-4 py-2 rounded-xl border border-slate-200 hover:border-slate-300" href="{{ url_for('admin_notifications', page=page+1, q=q) }}">Następna →</a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

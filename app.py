@@ -2,6 +2,7 @@
 import os
 import sqlite3
 import time
+import math
 from datetime import datetime
 from email.message import EmailMessage
 import smtplib
@@ -177,6 +178,19 @@ def create_app():
     def require_admin():
         if not is_admin():
             return redirect(url_for("admin_login", next=request.path))
+
+    def mailto_link(to_email: str, subject: str = "", body: str = "") -> str:
+        """Build a safe mailto: URL for templates."""
+        to_email = (to_email or "").strip()
+        if not to_email:
+            return ""
+        q = {}
+        if subject:
+            q["subject"] = subject
+        if body:
+            q["body"] = body
+        query = urlencode(q) if q else ""
+        return f"mailto:{to_email}?{query}" if query else f"mailto:{to_email}"
 
     def archive_lead_to_disk(*, lead_id: int, created_at: str, name: str, email: str, phone: str, message: str) -> None:
         """Persist the lead as a JSON file on disk (optional).
@@ -436,6 +450,56 @@ def create_app():
         flash(f"Import zakończony: dodano {created}, zaktualizowano {updated}, pominięto {skipped}.", "success")
         return redirect(url_for("admin_dashboard"))
 
+    @app.get("/admin/notifications")
+    def admin_notifications():
+        """Admin view: list contact form submissions (leads).
+
+        This replaces email delivery as the primary notification channel.
+        """
+        ra = require_admin()
+        if ra:
+            return ra
+
+        q = (request.args.get("q", "") or "").strip()
+        try:
+            page = int(request.args.get("page", "1") or 1)
+        except Exception:
+            page = 1
+        page = max(1, page)
+        per_page = 50
+        offset = (page - 1) * per_page
+
+        db = get_db()
+        where = []
+        params: list = []
+        if q:
+            where.append("(name LIKE ? OR email LIKE ? OR phone LIKE ? OR message LIKE ?)")
+            qq = f"%{q}%"
+            params.extend([qq, qq, qq, qq])
+
+        where_sql = (" WHERE " + " AND ".join(where)) if where else ""
+
+        total = db.execute(f"SELECT COUNT(1) AS c FROM leads{where_sql}", params).fetchone()["c"]
+        rows = db.execute(
+            f"SELECT * FROM leads{where_sql} ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?",
+            params + [per_page, offset],
+        ).fetchall()
+
+        leads = [row_to_dict(r) for r in rows]
+        total_pages = max(1, math.ceil((total or 0) / per_page))
+        if page > total_pages:
+            page = total_pages
+
+        return render_template(
+            "admin/notifications.html",
+            leads=leads,
+            q=q,
+            page=page,
+            total_pages=total_pages,
+            total=total,
+            per_page=per_page,
+        )
+
     @app.post("/admin/geocode/<int:cid>")
     def admin_geocode(cid):
         ra = require_admin()
@@ -463,6 +527,7 @@ def create_app():
             "INSTAGRAM_HANDLE": app.config.get("INSTAGRAM_HANDLE", ""),
             "INSTAGRAM_URL": app.config.get("INSTAGRAM_URL", ""),
             "is_admin": is_admin(),
+            "mailto_link": mailto_link,
             "CURRENT_YEAR": datetime.utcnow().year,
         }
 
