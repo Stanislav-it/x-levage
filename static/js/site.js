@@ -142,4 +142,35 @@
       });
     }
   });
+
+  // ---------------- Admin notifications: smart reply (mailto + Gmail fallback) ----------------
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest ? e.target.closest('[data-reply-link]') : null;
+    if (!a) return;
+
+    var mailto = a.getAttribute('href') || '';
+    var gmail = a.getAttribute('data-gmail') || '';
+    if (!mailto || mailto.indexOf('mailto:') !== 0) return;
+
+    // Attempt to open the native mail client; if nothing happens (common on mobile/webviews),
+    // fall back to Gmail web compose which reliably pre-fills the recipient.
+    e.preventDefault();
+
+    var didBlur = false;
+    function onBlur() {
+      didBlur = true;
+      window.removeEventListener('blur', onBlur);
+    }
+
+    window.addEventListener('blur', onBlur);
+    window.location.href = mailto;
+
+    setTimeout(function () {
+      window.removeEventListener('blur', onBlur);
+      if (!didBlur && gmail) {
+        window.open(gmail, '_blank', 'noopener');
+      }
+    }, 900);
+  });
+
 })();

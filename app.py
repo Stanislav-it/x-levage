@@ -6,7 +6,7 @@ import math
 from datetime import datetime
 from email.message import EmailMessage
 import smtplib
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 
 import requests
 from flask import (
@@ -189,8 +189,29 @@ def create_app():
             q["subject"] = subject
         if body:
             q["body"] = body
-        query = urlencode(q) if q else ""
+        query = urlencode(q, quote_via=quote) if q else ""
         return f"mailto:{to_email}?{query}" if query else f"mailto:{to_email}"
+
+    def gmail_compose_link(to_email: str, subject: str = "", body: str = "") -> str:
+        """Build a Gmail web compose URL as a cross-platform fallback.
+
+        Note: This opens Gmail in the browser (or Gmail app if the OS routes it).
+        """
+        to_email = (to_email or "").strip()
+        if not to_email:
+            return ""
+        params = {
+            'view': 'cm',
+            'fs': '1',
+            'to': to_email,
+        }
+        if subject:
+            params['su'] = subject
+        if body:
+            params['body'] = body
+        query = urlencode(params, quote_via=quote)
+        return f"https://mail.google.com/mail/?{query}"
+
 
     def archive_lead_to_disk(*, lead_id: int, created_at: str, name: str, email: str, phone: str, message: str) -> None:
         """Persist the lead as a JSON file on disk (optional).
@@ -528,6 +549,7 @@ def create_app():
             "INSTAGRAM_URL": app.config.get("INSTAGRAM_URL", ""),
             "is_admin": is_admin(),
             "mailto_link": mailto_link,
+            "gmail_compose_link": gmail_compose_link,
             "CURRENT_YEAR": datetime.utcnow().year,
         }
 
