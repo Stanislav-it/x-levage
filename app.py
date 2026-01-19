@@ -12,6 +12,7 @@ from flask import (
     Flask, abort, flash, g, jsonify, redirect, render_template,
     request, session, url_for
 )
+from flask import current_app
 
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -21,32 +22,80 @@ APP_DIR = os.path.abspath(os.path.dirname(__file__))
 # Render notes:
 # - Attach a Persistent Disk and mount it (recommended mount path: /var/data).
 # - Set DATA_DIR=/var/data in Render Environment Variables.
-# - The app will store SQLite under ${DATA_DIR}/instance/app.db.
+# - The app stores SQLite under ${DATA_DIR}/instance/app.db.
 #
-# Local dev:
-# - If DATA_DIR is not set, the app uses ./instance/app.db.
+# IMPORTANT:
+# If you set DATA_DIR but forget to attach the disk (or mount path differs),
+# Render will NOT allow writing to /var/data and the app will crash.
+# To be resilient, we automatically fall back to a writable local directory.
 # ---------------------------------------------------------------------------
-DATA_DIR = (os.environ.get("DATA_DIR") or "").strip()
-if DATA_DIR:
-    INSTANCE_DIR = os.path.join(DATA_DIR, "instance")
-else:
-    INSTANCE_DIR = os.path.join(APP_DIR, "instance")
 
-_default_db_path = os.path.join(INSTANCE_DIR, "app.db")
-DB_PATH = (os.environ.get("SQLITE_DB_PATH") or _default_db_path).strip()
+def _first_writable_dir(candidates: list[str]) -> str:
+    """Return the first directory we can create/write to."""
+    for d in candidates:
+        if not d:
+            continue
+        try:
+            os.makedirs(d, exist_ok=True)
+            probe = os.path.join(d, ".write_test")
+            with open(probe, "w", encoding="utf-8") as f:
+                f.write("ok")
+            os.remove(probe)
+            return d
+        except Exception:
+            continue
+    # Last resort: app directory instance (may still fail, but then error is real)
+    d = os.path.join(APP_DIR, "instance")
+    os.makedirs(d, exist_ok=True)
+    return d
 
-# Allow relative DB paths for convenience (e.g. SQLITE_DB_PATH=instance/app.db)
-if DB_PATH and not os.path.isabs(DB_PATH):
-    DB_PATH = os.path.join(APP_DIR, DB_PATH)
 
-os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+def resolve_storage_paths() -> tuple[str, str]:
+    """Return (instance_dir, db_path) using env vars with safe fallbacks."""
+    data_dir = (os.environ.get("DATA_DIR") or "").strip()
+    desired_instance = os.path.join(data_dir, "instance") if data_dir else ""
+
+    # Pick first writable among: desired (disk), app-local, /tmp
+    instance_dir = _first_writable_dir([
+        desired_instance,
+        os.path.join(APP_DIR, "instance"),
+        os.path.join("/tmp", "instance"),
+    ])
+
+    if desired_instance and os.path.abspath(instance_dir) != os.path.abspath(desired_instance):
+        print(
+            f"[WARN] DATA_DIR is set to '{data_dir}', but it is not writable. "
+            f"Falling back to '{instance_dir}'. To enable persistence on Render, "
+            "attach a Persistent Disk mounted at the same path and redeploy."
+        )
+
+    default_db_path = os.path.join(instance_dir, "app.db")
+    db_path = (os.environ.get("SQLITE_DB_PATH") or default_db_path).strip()
+
+    # Allow relative DB paths for convenience (e.g. SQLITE_DB_PATH=instance/app.db)
+    if db_path and not os.path.isabs(db_path):
+        db_path = os.path.join(APP_DIR, db_path)
+
+    # Ensure parent exists (may be different if SQLITE_DB_PATH overrides)
+    try:
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    except Exception:
+        # If override points somewhere unwritable, fall back to instance_dir
+        db_path = default_db_path
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+    return instance_dir, db_path
 
 
 def create_app():
-    app = Flask(__name__, instance_path=INSTANCE_DIR, instance_relative_config=True)
+    instance_dir, db_path = resolve_storage_paths()
+    app = Flask(__name__, instance_path=instance_dir, instance_relative_config=True)
     debug = str(os.environ.get("FLASK_DEBUG", "")).strip().lower() in {"1", "true", "yes"}
 
     app.config.update(
+        # Storage
+        DB_PATH=db_path,
+
         # Security
         SECRET_KEY=os.environ.get("SECRET_KEY", "dev-secret-key-change-me"),
         SESSION_COOKIE_HTTPONLY=True,
@@ -56,6 +105,12 @@ def create_app():
         # Admin
         ADMIN_USER=os.environ.get("ADMIN_USER", "admin"),
         ADMIN_PASS=os.environ.get("ADMIN_PASS", "admin"),
+
+        # Lead persistence on disk (in addition to SQLite)
+        # These directories will be created under the DATA_DIR root if available
+        # (recommended on Render: /var/data).
+        LEADS_DIR=os.environ.get("LEADS_DIR", os.path.join(os.path.dirname(instance_dir), "leads")),
+        MAIL_ARCHIVE_DIR=os.environ.get("MAIL_ARCHIVE_DIR", os.path.join(os.path.dirname(instance_dir), "mail_archive")),
 
         # Branding / contact
         SITE_NAME=os.environ.get("SITE_NAME", "X‑LEVAGE"),
@@ -84,7 +139,16 @@ def create_app():
             "xlevage-site/1.0 (contact: xlevage@gmail.com)",
         ),
     )
-    os.makedirs(INSTANCE_DIR, exist_ok=True)
+    # Ensure instance dir exists (resolve_storage_paths already does, but keep safe)
+    os.makedirs(instance_dir, exist_ok=True)
+    # Ensure data directories exist (best-effort)
+    for _d in (app.config.get('LEADS_DIR'), app.config.get('MAIL_ARCHIVE_DIR')):
+        try:
+            if _d:
+                os.makedirs(_d, exist_ok=True)
+        except Exception as _exc:
+            print(f"[WARN] Could not create data dir {_d}: {_exc}")
+
 
     # Basic safety: show a warning in logs if you forgot to configure secrets.
     if not debug:
@@ -114,7 +178,35 @@ def create_app():
         if not is_admin():
             return redirect(url_for("admin_login", next=request.path))
 
-    def send_lead_email(*, name: str, email: str, phone: str, message: str) -> bool:
+    def archive_lead_to_disk(*, lead_id: int, created_at: str, name: str, email: str, phone: str, message: str) -> None:
+        """Persist the lead as a JSON file on disk (optional).
+
+        This is useful on Render when you want a simple file-level archive in addition to SQLite.
+        It is best-effort and must never break the user flow.
+        """
+        leads_dir = (app.config.get('LEADS_DIR') or '').strip()
+        if not leads_dir:
+            return
+        try:
+            os.makedirs(leads_dir, exist_ok=True)
+            safe_ts = created_at.replace(':', '').replace('-', '').replace('T', '_')
+            fn = f"lead_{lead_id}_{safe_ts}.json"
+            path = os.path.join(leads_dir, fn)
+            import json
+            payload = {
+                'id': int(lead_id),
+                'created_at_utc': created_at,
+                'name': name,
+                'email': email,
+                'phone': phone,
+                'message': message,
+            }
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(payload, f, ensure_ascii=False, indent=2)
+        except Exception as exc:
+            print(f"[WARN] Failed to archive lead to disk: {exc}")
+
+    def send_lead_email(*, name: str, email: str, phone: str, message: str, lead_id: int | None = None, created_at: str | None = None) -> bool:
         """Send a contact form notification via SMTP.
 
         Delivery is best-effort: if SMTP is not configured or sending fails,
@@ -152,6 +244,18 @@ def create_app():
                 f"Czas (UTC): {datetime.utcnow().isoformat(timespec='seconds')}",
             ]
             msg.set_content("\n".join(lines))
+
+            # Best-effort archive of the raw email on disk (optional)
+            try:
+                archive_dir = (app.config.get('MAIL_ARCHIVE_DIR') or '').strip()
+                if archive_dir and lead_id is not None and created_at:
+                    os.makedirs(archive_dir, exist_ok=True)
+                    safe_ts = created_at.replace(':', '').replace('-', '').replace('T', '_')
+                    eml_path = os.path.join(archive_dir, f"lead_{lead_id}_{safe_ts}.eml")
+                    with open(eml_path, 'wb') as f:
+                        f.write(msg.as_bytes())
+            except Exception as _exc:
+                print(f"[WARN] Failed to archive email: {_exc}")
 
             with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as server:
                 server.ehlo()
@@ -213,14 +317,19 @@ def create_app():
             return redirect(request.referrer or url_for("index"))
 
         db = get_db()
-        db.execute(
+        created_at = datetime.utcnow().isoformat(timespec="seconds")
+        cur = db.execute(
             "INSERT INTO leads(name,email,phone,message,created_at) VALUES(?,?,?,?,?)",
-            (name, email, phone, message, datetime.utcnow().isoformat(timespec="seconds")),
+            (name, email, phone, message, created_at),
         )
+        lead_id = cur.lastrowid
         db.commit()
 
+        # Best-effort file archive on disk (optional).
+        archive_lead_to_disk(lead_id=lead_id, created_at=created_at, name=name, email=email, phone=phone, message=message)
+
         # Best-effort email notification (if SMTP configured).
-        send_lead_email(name=name, email=email, phone=phone, message=message)
+        send_lead_email(name=name, email=email, phone=phone, message=message, lead_id=lead_id, created_at=created_at)
 
         flash("Dziękujemy. Skontaktujemy się wkrótce.", "success")
         return redirect(request.referrer or url_for("index"))
@@ -363,7 +472,8 @@ def create_app():
 def get_db():
     db = getattr(g, "_db", None)
     if db is None:
-        db = sqlite3.connect(DB_PATH, check_same_thread=False)
+        db_path = current_app.config.get("DB_PATH")
+        db = sqlite3.connect(db_path, check_same_thread=False)
         db.row_factory = sqlite3.Row
         # Improve concurrency for multi-request workloads.
         try:

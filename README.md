@@ -1,5 +1,20 @@
 # X‑LEVAGE — Flask site (minimalist)
 
+
+## Render (коротко по делу — что обязательно включить)
+1) **Persistent Disk**: mount path **`/var/data`**.
+2) В **Environment** (это список **Key / Value**) выставить минимум:
+   - `DATA_DIR` = `/var/data`
+   - `SECRET_KEY` = Generate
+   - `ADMIN_USER` = ваш логин
+   - `ADMIN_PASS` = ваш пароль
+3) Где лежат данные на диске:
+   - База (все правки из `/admin` + все заявки из формы): **`/var/data/instance/app.db`**
+   - Архив заявок файлами (JSON): **`/var/data/leads/`**
+   - Архив отправленных писем (EML, опционально): **`/var/data/mail_archive/`**
+
+Если диск не подключен или смонтирован в другой путь, данные не будут сохраняться между деплоями.
+
 ## Co jest w środku
 - Flask + SQLite (`instance/app.db`)
 - Strony:
@@ -71,7 +86,7 @@ W Render -> Twoj serwis -> **Disks**:
 - Add disk
 - Mount path: `/var/data`
 
-Następnie w Render -> **Environment** dodaj:
+Następnie w Render -> **Environment** (to jest lista **Key / Value**) dodaj:
 - `DATA_DIR` = `/var/data`
 
 **3) Environment Variables (minimum)**
@@ -96,3 +111,7 @@ Minimalnie ustaw:
 - `SMTP_FROM` = `xlevage@gmail.com` (lub zostaw puste, wtedy użyje `SMTP_USER`)
 
 Jeżeli hostujesz pod domeną, zadbaj o HTTPS (Render daje HTTPS automatycznie dla domeny *.onrender.com).
+
+**Dodatkowo (opcjonalne archiwum na dysku):**
+- `LEADS_DIR` = `/var/data/leads` (jeśli puste, domyślnie i tak zapisuje pod DATA_DIR)
+- `MAIL_ARCHIVE_DIR` = `/var/data/mail_archive` (zapisuje kopię wysłanego e‑maila jako plik `.eml`)

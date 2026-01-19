@@ -17,6 +17,12 @@ services:
       - key: DATA_DIR
         value: /var/data
 
+      - key: LEADS_DIR
+        value: /var/data/leads
+
+      - key: MAIL_ARCHIVE_DIR
+        value: /var/data/mail_archive
+
       - key: SECRET_KEY
         generateValue: true
 
