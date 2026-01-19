@@ -173,4 +173,28 @@
     }, 900);
   });
 
+  // ---------------- Admin notifications: expand/collapse message row ----------------
+  document.addEventListener('click', function (e) {
+    var toggle = e.target && e.target.closest ? e.target.closest('.lead-toggle') : null;
+    if (!toggle) return;
+
+    e.preventDefault();
+    var targetId = toggle.getAttribute('data-target') || '';
+    if (!targetId) return;
+
+    var row = document.getElementById(targetId);
+    if (!row) return;
+
+    var isHidden = row.classList.contains('hidden');
+    if (isHidden) {
+      row.classList.remove('hidden');
+      toggle.textContent = 'Ukryj';
+      toggle.setAttribute('aria-expanded', 'true');
+    } else {
+      row.classList.add('hidden');
+      toggle.textContent = 'Podgląd';
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
 })();

@@ -30,7 +30,7 @@
 <section class="max-w-6xl mx-auto px-4 pb-16">
   <div class="rounded-3xl border border-slate-100 overflow-hidden">
     <div class="overflow-x-auto">
-      <table class="min-w-full text-sm">
+      <table class="min-w-full text-sm admin-notifications-table">
         <thead class="bg-slate-50 text-slate-600">
           <tr class="[&>th]:text-left [&>th]:font-semibold [&>th]:px-4 [&>th]:py-3">
             <th class="w-20">ID</th>
@@ -42,15 +42,13 @@
         </thead>
         <tbody class="divide-y divide-slate-100">
           {% for l in leads %}
-            {% set subject = 'Re: Zapytanie #' ~ l.id ~ ' — ' ~ BRAND %}
-            {% set body = 'Cześć ' ~ (l.name or '') ~ '\n\nDziękujemy za wiadomość. Odpowiadamy poniżej.\n\n---\nTwoje zgłoszenie (UTC: ' ~ (l.created_at or '') ~ '):\n' ~ (l.message or '-') ~ '\n\nKontakt: ' ~ (l.phone or '-') ~ ' / ' ~ (l.email or '-') ~ '\n' %}
             <tr class="[&>td]:px-4 [&>td]:py-3 align-top">
               <td class="text-slate-500">#{{ l.id }}</td>
               <td class="text-slate-600 font-mono">{{ l.created_at }}</td>
               <td>
                 <div class="font-semibold text-slate-900">{{ l.name or '—' }}</div>
               </td>
-              <td class="text-slate-700">
+              <td class="text-slate-700 admin-notifications-contact">
                 {% if l.email %}
                   <div>E‑mail: <a class="underline" href="mailto:{{ l.email }}">{{ l.email }}</a></div>
                 {% else %}
@@ -63,10 +61,18 @@
                 {% endif %}
               </td>
               <td class="text-slate-800">
-                <details class="rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                  <summary class="cursor-pointer text-slate-700 select-none">Podgląd</summary>
-                  <div class="mt-3 whitespace-pre-wrap text-slate-900">{{ l.message or '—' }}</div>
-                </details>
+                <div class="flex items-start gap-3">
+                  <div class="text-slate-600 admin-notifications-snippet">
+                    {{ (l.message or '—')|truncate(90, True, '…') }}
+                  </div>
+                  <a href="#" class="underline text-slate-700 lead-toggle shrink-0" data-target="leadmsg-{{ l.id }}" aria-expanded="false">Podgląd</a>
+                </div>
+              </td>
+            </tr>
+
+            <tr id="leadmsg-{{ l.id }}" class="hidden admin-notifications-message-row">
+              <td colspan="5" class="px-4 py-4">
+                <div class="lead-message">{{ l.message or '—' }}</div>
               </td>
             </tr>
           {% endfor %}

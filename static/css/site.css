@@ -134,3 +134,29 @@ img, video { max-width: 100%; height: auto; }
     line-height: 1.35;
   }
 }
+
+/* Admin notifications: keep long emails/phones/messages readable without forcing horizontal scroll */
+.admin-notifications-table{
+  table-layout: fixed;
+}
+
+.admin-notifications-contact a{
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.admin-notifications-snippet{
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.admin-notifications-message-row{
+  background: #f8fafc; /* slate-50 */
+}
+
+.lead-message{
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.5;
+}
