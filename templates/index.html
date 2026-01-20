@@ -57,18 +57,39 @@
       </p>
 
       <div class="mt-7 grid sm:grid-cols-3 gap-4">
-        <div class="rounded-2xl border border-slate-100 p-4">
-          <div class="text-xs text-slate-500">Fala tulowa</div>
-          <div class="mt-1 font-semibold">{{ stats.pro_wavelength }}</div>
-        </div>
-        <div class="rounded-2xl border border-slate-100 p-4">
-          <div class="text-xs text-slate-500">Dual‑wavelength</div>
-          <div class="mt-1 font-semibold">{{ stats.erbo_wavelength }}</div>
-        </div>
-        <div class="rounded-2xl border border-slate-100 p-4">
-          <div class="text-xs text-slate-500">Mapa gabinetów</div>
-          <div class="mt-1 font-semibold">Showroom i autoryzowane</div>
-        </div>
+        <a href="{{ url_for('pro') }}" class="group rounded-2xl border border-slate-100 p-4 hover:bg-slate-50 transition">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-xs text-slate-500">Fala tulowa</div>
+              <div class="mt-1 font-semibold">{{ stats.pro_wavelength }}</div>
+            </div>
+            <svg class="mt-1 h-4 w-4 text-slate-400 group-hover:text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </div>
+        </a>
+        <a href="{{ url_for('erbo') }}" class="group rounded-2xl border border-slate-100 p-4 hover:bg-slate-50 transition">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-xs text-slate-500">Dual‑wavelength</div>
+              <div class="mt-1 font-semibold">{{ stats.erbo_wavelength }}</div>
+            </div>
+            <svg class="mt-1 h-4 w-4 text-slate-400 group-hover:text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </div>
+        </a>
+        <a href="{{ url_for('gabinet') }}" class="group rounded-2xl border border-slate-100 p-4 hover:bg-slate-50 transition">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-xs text-slate-500">Mapa gabinetów</div>
+              <div class="mt-1 font-semibold">Autoryzowane gabinety X‑Levage</div>
+            </div>
+            <svg class="mt-1 h-4 w-4 text-slate-400 group-hover:text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </div>
+        </a>
       </div>
     </div>
 
@@ -232,7 +253,7 @@
       // Default view (Poland)
       map.setView([52.1, 19.4], 6);
 
-      fetch('{{ url_for('api_clinics') }}?view=authorized')
+      fetch('{{ url_for('api_clinics') }}?view=all')
         .then(r => r.json())
         .then(data => {
           const clinics = (data && data.clinics) ? data.clinics : [];

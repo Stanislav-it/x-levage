@@ -709,6 +709,8 @@ def official_clinics_list():
             "address": "Zabrska 15, 40-101 Katowice, Polska",
             "city": "Katowice",
             "phone": "503551055",
+            "lat": 50.263068,
+            "lon": 19.012763,
         },
 
         # 2
@@ -718,6 +720,8 @@ def official_clinics_list():
             "address": "Aleja Wojska Polskiego 70C, Zielona Góra, Polska",
             "city": "Zielona Góra",
             "phone": "+48600331773",
+            "lat": 51.937828,
+            "lon": 15.488992,
         },
         # 3
         {
@@ -726,6 +730,8 @@ def official_clinics_list():
             "address": "Młynarska 119, Kalisz, Polska",
             "city": "Kalisz",
             "phone": "606911114",
+            "lat": 51.751345,
+            "lon": 18.069903,
         },
 
         # 4
@@ -735,6 +741,8 @@ def official_clinics_list():
             "address": "Okrzei 39, 87-800 Włocławek, Polska",
             "city": "Włocławek",
             "phone": "604446352",
+            "lat": 52.6489,
+            "lon": 19.065977,
         },
         # 5
         {
@@ -743,6 +751,8 @@ def official_clinics_list():
             "address": "Lubartowska 77, Lublin, Polska",
             "city": "Lublin",
             "phone": "531090033",
+            "lat": 51.256674,
+            "lon": 22.571279,
         },
         # 6
         {
@@ -751,6 +761,8 @@ def official_clinics_list():
             "address": "Rynkowa 96, Przeźmierowo, Polska",
             "city": "Przeźmierowo",
             "phone": "508522474",
+            "lat": 52.426882,
+            "lon": 16.7845,
         },
         # 7
         {
@@ -759,6 +771,8 @@ def official_clinics_list():
             "address": "Sienkiewicza 21, Świeradów-Zdrój, Polska",
             "city": "Świeradów-Zdrój",
             "phone": "662070569",
+            "lat": 50.908304,
+            "lon": 15.329688,
         },
         # 8
         {
@@ -767,6 +781,8 @@ def official_clinics_list():
             "address": "Morelowa 34, Zielona Góra, Polska",
             "city": "Zielona Góra",
             "phone": "531431273",
+            "lat": 51.931736,
+            "lon": 15.516633,
         },
         # 9
         {
@@ -775,6 +791,8 @@ def official_clinics_list():
             "address": "Chłodna 26, Radom, Polska",
             "city": "Radom",
             "phone": "502166165",
+            "lat": 51.407659,
+            "lon": 21.135747,
         },
         # 10
         {
@@ -783,6 +801,8 @@ def official_clinics_list():
             "address": "Paprocańska 47, Tychy, Polska",
             "city": "Tychy",
             "phone": "508175609",
+            "lat": 50.106309,
+            "lon": 19.001723,
         },
         # 11
         {
@@ -791,6 +811,8 @@ def official_clinics_list():
             "address": "Ochabska 5, Kiczyce, Skoczów, Polska",
             "city": "Kiczyce (Skoczów)",
             "phone": "505633026",
+            "lat": 49.822517,
+            "lon": 18.799859,
         },
         # 12
         {
@@ -799,6 +821,8 @@ def official_clinics_list():
             "address": "Długosza 33, Człuchów, Polska",
             "city": "Człuchów",
             "phone": "794433098",
+            "lat": 53.666538,
+            "lon": 17.357449,
         },
         # 13
         {
@@ -807,6 +831,8 @@ def official_clinics_list():
             "address": "Granitowa 6/1, Smolec, Polska",
             "city": "Smolec",
             "phone": "577019130",
+            "lat": 51.08367,
+            "lon": 16.909502,
         },
         # 14
         {
@@ -815,6 +841,8 @@ def official_clinics_list():
             "address": "Pomorska 64, Czaple, Polska",
             "city": "Czaple",
             "phone": "530526227",
+            "lat": 54.360295,
+            "lon": 18.43239,
         },
         # 15
         {
@@ -823,6 +851,8 @@ def official_clinics_list():
             "address": "Trablice 32, Trablice, Polska",
             "city": "Trablice",
             "phone": "509837346",
+            "lat": 51.348981,
+            "lon": 21.110435,
         },
         # 16
         {
@@ -831,6 +861,8 @@ def official_clinics_list():
             "address": "Sąsiedzka 13a, Poznań, Polska",
             "city": "Poznań",
             "phone": "537233229",
+            "lat": 52.355149,
+            "lon": 16.855358,
         },
         # 17
         {
@@ -839,6 +871,8 @@ def official_clinics_list():
             "address": "Hierowskiego 37, Tychy, Polska",
             "city": "Tychy",
             "phone": "783526204",
+            "lat": 50.114653,
+            "lon": 18.974568,
         },
         # 18
         {
@@ -847,6 +881,8 @@ def official_clinics_list():
             "address": "Grunwaldzka 55/18, Płońsk, Polska",
             "city": "Płońsk",
             "phone": "509833765",
+            "lat": 52.629147,
+            "lon": 20.373171,
         },
         # 19
         {
@@ -855,6 +891,8 @@ def official_clinics_list():
             "address": "Kościuszki 12, Ropczyce, Polska",
             "city": "Ropczyce",
             "phone": "+48533014472",
+            "lat": 50.05279,
+            "lon": 21.60739,
         },
         # 20
         {
@@ -863,6 +901,8 @@ def official_clinics_list():
             "address": "Adama Mickiewicza 15, Nowy Tomyśl, Polska",
             "city": "Nowy Tomyśl",
             "phone": "697384364",
+            "lat": 52.317275,
+            "lon": 16.13163,
         },
         # 21
         {
@@ -871,6 +911,8 @@ def official_clinics_list():
             "address": "Książkowa 9G, Warszawa, Polska",
             "city": "Warszawa",
             "phone": "502431843",
+            "lat": 52.33203,
+            "lon": 20.939324,
         },
         # 22
         {
@@ -879,6 +921,8 @@ def official_clinics_list():
             "address": "Kopernika 7a, Wieliczka, Polska",
             "city": "Wieliczka",
             "phone": "501232995",
+            "lat": 49.981356,
+            "lon": 20.059356,
         },
     ]
 
@@ -892,7 +936,7 @@ def sync_official_clinics(db):
     - Best-effort geocode missing coordinates (cached in `geocode_cache`).
     """
     try:
-        rows = db.execute("SELECT id, kind, name, address, city, phone FROM clinics").fetchall()
+        rows = db.execute("SELECT id, kind, name, address, city, phone, lat, lon FROM clinics").fetchall()
     except Exception:
         return
 
@@ -918,6 +962,17 @@ def sync_official_clinics(db):
         for c in official
     }
 
+    
+    desired_coords = {
+        (
+            (c.get("name", "") or "").strip(),
+            (c.get("address", "") or "").strip(),
+            (c.get("city", "") or "").strip(),
+            (c.get("phone", "") or "").strip(),
+        ): (c.get("lat"), c.get("lon"))
+        for c in official
+    }
+
     existing_keys = set()
     to_delete_ids = []
     for r in rows:
@@ -929,12 +984,25 @@ def sync_official_clinics(db):
         )
         if key in allowed_keys:
             existing_keys.add(key)
-            # Enforce official kind.
+            # Enforce official kind + coordinates.
             want = desired_kind.get(key, "authorized")
-            if r["kind"] != want:
+            latlon = desired_coords.get(key)
+            want_lat = latlon[0] if latlon else None
+            want_lon = latlon[1] if latlon else None
+
+            need_kind = (r["kind"] != want)
+            need_coords = (want_lat is not None and want_lon is not None and (r["lat"] != want_lat or r["lon"] != want_lon))
+
+            if need_kind or need_coords:
                 db.execute(
-                    "UPDATE clinics SET kind=?, updated_at=? WHERE id=?",
-                    (want, datetime.utcnow().isoformat(timespec="seconds"), r["id"]),
+                    "UPDATE clinics SET kind=?, lat=?, lon=?, updated_at=? WHERE id=?",
+                    (
+                        want,
+                        want_lat if want_lat is not None else r["lat"],
+                        want_lon if want_lon is not None else r["lon"],
+                        datetime.utcnow().isoformat(timespec="seconds"),
+                        r["id"],
+                    ),
                 )
         else:
             # Remove any non-official entries, including ambassadors/demo.
@@ -964,8 +1032,8 @@ def sync_official_clinics(db):
                 c.get("phone", "").strip(),
                 c.get("website", "").strip(),
                 c.get("notes", "").strip(),
-                None,
-                None,
+                c.get("lat"),
+                c.get("lon"),
                 now,
                 now,
             ),
