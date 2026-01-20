@@ -121,18 +121,15 @@ def create_app():
         BRAND=os.environ.get("BRAND", "X‑LEVAGE"),
         CONTACT_EMAIL=os.environ.get("CONTACT_EMAIL", "xlevage@gmail.com"),
         CONTACT_PHONE=os.environ.get("CONTACT_PHONE", "+48 518 151 673"),
-
         INSTAGRAM_HANDLE=os.environ.get("INSTAGRAM_HANDLE", "xestetik"),
         INSTAGRAM_URL=os.environ.get(
             "INSTAGRAM_URL",
             "https://www.instagram.com/xestetik?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
-
-
+        ),
         FACEBOOK_URL=os.environ.get(
             "FACEBOOK_URL",
             "https://www.facebook.com/lasertulowyxlevage",
-        ),        ),
-
+        ),
         # Contact form email delivery
         MAIL_TO=os.environ.get("MAIL_TO", "xlevage@gmail.com"),
         SMTP_HOST=os.environ.get("SMTP_HOST", ""),
@@ -353,10 +350,60 @@ def create_app():
 
     @app.get("/gabinet")
     def gabinet():
-        view = request.args.get("view", "ambassadors")  # ambassadors | authorized | all
+        # Public page: show only authorized/showroom locations.
+        view = request.args.get("view", "authorized")  # authorized | all
         q = request.args.get("q", "").strip()
         clinics = search_clinics(view=view, q=q, limit=500)
         return render_template("gabinet.html", clinics=clinics, view=view, q=q)
+
+    @app.get("/umow-prezentacje")
+    def prezentacja():
+        return render_template("prezentacja.html")
+
+    @app.post("/umow-prezentacje")
+    def prezentacja_post():
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+        phone = request.form.get("phone", "").strip()
+        city = request.form.get("city", "").strip()
+        preferred_date = request.form.get("preferred_date", "").strip()
+        preferred_clinic = request.form.get("preferred_clinic", "").strip()
+        note = request.form.get("message", "").strip()
+
+        if not email and not phone:
+            flash("Podaj e‑mail lub telefon, abyśmy mogli się skontaktować.", "error")
+            return redirect(url_for("prezentacja"))
+
+        # Store extra fields inside the lead message (single table column).
+        lines = [
+            "Umów prezentację urządzenia",
+            "",
+            f"Miasto: {city or '-'}",
+            f"Preferowany termin: {preferred_date or '-'}",
+            f"Preferowany gabinet: {preferred_clinic or '-'}",
+            "",
+            "Dodatkowa wiadomość:",
+            note or "-",
+        ]
+        message = "\n".join(lines)
+
+        db = get_db()
+        created_at = datetime.utcnow().isoformat(timespec="seconds")
+        cur = db.execute(
+            "INSERT INTO leads(name,email,phone,message,created_at) VALUES(?,?,?,?,?)",
+            (name, email, phone, message, created_at),
+        )
+        lead_id = cur.lastrowid
+        db.commit()
+
+        # Best-effort file archive on disk (optional).
+        archive_lead_to_disk(lead_id=lead_id, created_at=created_at, name=name, email=email, phone=phone, message=message)
+
+        # Best-effort email notification (if SMTP configured).
+        send_lead_email(name=name, email=email, phone=phone, message=message, lead_id=lead_id, created_at=created_at)
+
+        flash("Dziękujemy. Skontaktujemy się wkrótce.", "success")
+        return redirect(url_for("prezentacja"))
 
     @app.get("/api/clinics")
     def api_clinics():
@@ -572,6 +619,7 @@ def create_app():
             "CONTACT_PHONE": app.config["CONTACT_PHONE"],
             "INSTAGRAM_HANDLE": app.config.get("INSTAGRAM_HANDLE", ""),
             "INSTAGRAM_URL": app.config.get("INSTAGRAM_URL", ""),
+            "FACEBOOK_URL": app.config.get("FACEBOOK_URL", ""),
             "is_admin": is_admin(),
             "mailto_link": mailto_link,
             "gmail_compose_link": gmail_compose_link,
@@ -634,35 +682,162 @@ def init_db():
     """)
     db.commit()
 
-    # Seed initial demo clinics (Poland) so the map works out-of-the-box.
-    seed_demo_clinics(db)
+    # Ensure the public "Autoryzowane Gabinety" list is present.
+    # This replaces any demo/ambassador content and keeps only the official list.
+    sync_official_clinics(db)
 
 
-def seed_demo_clinics(db):
+def official_clinics_list():
+    """Canonical list for the public "Autoryzowane Gabinety" map.
+
+    Notes:
+    - kind is kept as 'authorized' for all entries.
+    - lat/lon may be NULL; the admin can geocode if needed.
+    """
+    return [
+        {
+            "name": "Showroom Firmowy",
+            "address": "Zabrska 15, Katowice",
+            "city": "Katowice",
+            "phone": "503551055",
+        },
+        {
+            "name": "Salon Pretty WOMEN",
+            "address": "Okrzei 39, 87-800 Włocławek",
+            "city": "Włocławek",
+            "phone": "604446352",
+        },
+        {
+            "name": "EK Medica Clinic",
+            "address": "Lubartowska 77, Lublin",
+            "city": "Lublin",
+            "phone": "531090033",
+        },
+        {
+            "name": "Kosmetologia Trychologia Paulina Wiszniowska",
+            "address": "Morelowa 34, Zielona Góra",
+            "city": "Zielona Góra",
+            "phone": "531431273",
+        },
+        {
+            "name": "Gacka Permanent & Estetyka",
+            "address": "Paprocańska 47, Tychy",
+            "city": "Tychy",
+            "phone": "508175609",
+        },
+        {
+            "name": "Permanentny Martinez",
+            "address": "Granitowa 6/1, Smolec",
+            "city": "Smolec",
+            "phone": "577019130",
+        },
+        {
+            "name": "Salon Urody Czapla Iwona Nalikowska",
+            "address": "Pomorska 64, Czaple",
+            "city": "Czaple",
+            "phone": "530526227",
+        },
+        {
+            "name": "Holies Aesthetic",
+            "address": "Sąsiedzka 13a, Poznań",
+            "city": "Poznań",
+            "phone": "537233229",
+        },
+        {
+            "name": "Salon Victoria",
+            "address": "Kościuszki 12, Ropczyce",
+            "city": "Ropczyce",
+            "phone": "+48533014472",
+        },
+        {
+            "name": "Studio Urody Anna Kaczmarek",
+            "address": "Adama Mickiewicza 15, Nowy Tomyśl",
+            "city": "Nowy Tomyśl",
+            "phone": "697384364",
+        },
+        {
+            "name": "Kowalewska Medycyna Estetyczna",
+            "address": "Książkowa 9G, Warszawa",
+            "city": "Warszawa",
+            "phone": "502431843",
+        },
+        {
+            "name": "Instytut Urody i Makijażu Permanentnego Wioletta Kolasa",
+            "address": "Kopernika 7a, Wieliczka",
+            "city": "Wieliczka",
+            "phone": "501232995",
+        },
+    ]
+
+
+def sync_official_clinics(db):
+    """Keep only the official clinics list and remove ambassadors."""
     try:
-        cnt = db.execute("SELECT COUNT(1) AS c FROM clinics").fetchone()["c"]
+        rows = db.execute("SELECT id, kind, name, address, city, phone FROM clinics").fetchall()
     except Exception:
         return
-    if cnt and int(cnt) > 0:
-        return
+
+    official = official_clinics_list()
+    allowed_keys = set(
+        (
+            (c.get("name", "") or "").strip(),
+            (c.get("address", "") or "").strip(),
+            (c.get("city", "") or "").strip(),
+            (c.get("phone", "") or "").strip(),
+        )
+        for c in official
+    )
+
+    existing_keys = set()
+    to_delete_ids = []
+    for r in rows:
+        key = (
+            (r["name"] or "").strip(),
+            (r["address"] or "").strip(),
+            (r["city"] or "").strip(),
+            (r["phone"] or "").strip(),
+        )
+        if key in allowed_keys:
+            existing_keys.add(key)
+            # Enforce kind=authorized (no ambassadors).
+            if r["kind"] != "authorized":
+                db.execute("UPDATE clinics SET kind=?, updated_at=? WHERE id=?",
+                           ("authorized", datetime.utcnow().isoformat(timespec="seconds"), r["id"]))
+        else:
+            # Remove any non-official entries, including ambassadors/demo.
+            to_delete_ids.append(r["id"])
+
+    if to_delete_ids:
+        db.executemany("DELETE FROM clinics WHERE id=?", [(i,) for i in to_delete_ids])
 
     now = datetime.utcnow().isoformat(timespec="seconds")
-    demo = [
-        ("ambassadors", "X‑Levage Studio Warszawa", "ul. Marszałkowska 99, 00-693 Warszawa", "Warszawa", "+48 500 111 222", "https://example.com", "", 52.2297, 21.0122),
-        ("authorized", "Klinika Estetyczna Kraków", "ul. Floriańska 44, 31-021 Kraków", "Kraków", "+48 500 222 333", "https://example.com", "", 50.0614, 19.9366),
-        ("authorized", "Centrum Laserowe Wrocław", "ul. Świdnicka 12, 50-068 Wrocław", "Wrocław", "+48 500 333 444", "https://example.com", "", 51.1079, 17.0385),
-        ("ambassadors", "Gabinet Premium Poznań", "ul. Półwiejska 2, 61-888 Poznań", "Poznań", "+48 500 444 555", "https://example.com", "", 52.4064, 16.9252),
-        ("authorized", "X‑Levage Gdańsk", "ul. Długa 10, 80-827 Gdańsk", "Gdańsk", "+48 500 555 666", "https://example.com", "", 54.3520, 18.6466),
-        ("authorized", "Dermalab Katowice", "ul. Mariacka 26, 40-014 Katowice", "Katowice", "+48 500 666 777", "https://example.com", "", 50.2649, 19.0238),
-        ("ambassadors", "Instytut Urody Lublin", "ul. Krakowskie Przedmieście 15, 20-002 Lublin", "Lublin", "+48 500 777 888", "https://example.com", "", 51.2465, 22.5684),
-        ("authorized", "Clinic Szczecin", "al. Wyzwolenia 23, 70-531 Szczecin", "Szczecin", "+48 500 888 999", "https://example.com", "", 53.4285, 14.5528),
-    ]
-    for kind, name, address, city, phone, website, notes, lat, lon in demo:
+    for c in official:
+        key = (
+            (c.get("name", "") or "").strip(),
+            (c.get("address", "") or "").strip(),
+            (c.get("city", "") or "").strip(),
+            (c.get("phone", "") or "").strip(),
+        )
+        if key in existing_keys:
+            continue
         db.execute(
             """INSERT INTO clinics(kind,name,address,city,phone,website,notes,lat,lon,created_at,updated_at)
                VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
-            (kind, name, address, city, phone, website, notes, lat, lon, now, now),
+            (
+                "authorized",
+                c["name"].strip(),
+                c["address"].strip(),
+                c.get("city", "").strip(),
+                c.get("phone", "").strip(),
+                c.get("website", "").strip(),
+                c.get("notes", "").strip(),
+                None,
+                None,
+                now,
+                now,
+            ),
         )
+
     db.commit()
 
 def row_to_dict(row):
@@ -678,9 +853,9 @@ def search_clinics(view="all", q="", limit=500):
     db = get_db()
     where = []
     params = []
-    if view in ("ambassadors", "authorized"):
+    if view == "authorized":
         where.append("kind=?")
-        params.append(view)
+        params.append("authorized")
     if q:
         where.append("(name LIKE ? OR address LIKE ? OR city LIKE ?)")
         qq = f"%{q}%"

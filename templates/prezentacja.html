@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% set title = "Umów prezentację — " ~ BRAND %}
+
+{% block content %}
+<section class="max-w-6xl mx-auto px-4 pt-10 pb-12">
+  <div class="grid lg:grid-cols-12 gap-8 items-start">
+    <div class="lg:col-span-6">
+      <p class="text-sm text-slate-500 uppercase tracking-wide">Prezentacja urządzenia</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Umów prezentację urządzenia</h1>
+      <p class="mt-3 text-slate-600">
+        Wypełnij formularz, a skontaktujemy się w celu ustalenia terminu oraz miejsca prezentacji.
+        Prezentacja jest bezpłatna.
+      </p>
+
+      <div class="mt-6 rounded-3xl border border-slate-100 p-6 bg-slate-50">
+        <div class="text-sm font-semibold">Co otrzymasz?</div>
+        <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-2">
+          <li>Omówienie urządzenia i możliwości zabiegowych.</li>
+          <li>Prezentację działania na przykładach (wg dostępności w gabinecie).</li>
+          <li>Odpowiedzi na pytania dotyczące wdrożenia w gabinecie.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="lg:col-span-6">
+      <div class="rounded-3xl border border-slate-100 overflow-hidden shadow-soft">
+        <div class="p-6 border-b border-slate-100">
+          <div class="text-sm text-slate-500 uppercase tracking-wide">Formularz</div>
+          <div class="mt-2 text-lg font-semibold">Zostaw dane kontaktowe</div>
+          <div class="mt-1 text-sm text-slate-600">Podaj e‑mail lub telefon (wystarczy jedno).</div>
+        </div>
+
+        <form class="p-6 grid gap-4" method="post" action="{{ url_for('prezentacja_post') }}">
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm text-slate-600">Imię i nazwisko</label>
+              <input name="name" autocomplete="name" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200" placeholder="Imię i nazwisko">
+            </div>
+            <div>
+              <label class="text-sm text-slate-600">Miasto</label>
+              <input name="city" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200" placeholder="Np. Katowice">
+            </div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm text-slate-600">E‑mail</label>
+              <input name="email" type="email" autocomplete="email" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200" placeholder="adres@domena.pl">
+            </div>
+            <div>
+              <label class="text-sm text-slate-600">Telefon</label>
+              <input name="phone" autocomplete="tel" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200" placeholder="np. +48 600 000 000">
+            </div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm text-slate-600">Preferowany termin</label>
+              <input name="preferred_date" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200" placeholder="Np. 05.02.2026 / godziny 10–14">
+            </div>
+            <div>
+              <label class="text-sm text-slate-600">Preferowany gabinet (opcjonalnie)</label>
+              <input name="preferred_clinic" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200" placeholder="Nazwa gabinetu / adres">
+            </div>
+          </div>
+
+          <div>
+            <label class="text-sm text-slate-600">Wiadomość (opcjonalnie)</label>
+            <textarea name="message" rows="5" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200" placeholder="Dodatkowe informacje, pytania, preferencje..."></textarea>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="text-xs text-slate-500">Klikając „Wyślij”, wyrażasz zgodę na kontakt w sprawie prezentacji.</div>
+            <button class="px-6 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800">Wyślij</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

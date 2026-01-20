@@ -20,17 +20,16 @@
         <label class="text-xs text-slate-500">Domyślny typ</label>
         <select name="default_type" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200">
           <option value="authorized">Autoryzowany</option>
-          <option value="ambassadors">Ambasador</option>
         </select>
       </div>
       <div class="text-xs text-slate-500 flex items-end">
-        kind: <span class="font-mono ml-2">authorized</span> lub <span class="font-mono ml-2">ambassadors</span>
+        kind: <span class="font-mono ml-2">authorized</span>
       </div>
     </div>
 
     <textarea name="raw" rows="14" class="w-full px-4 py-3 rounded-2xl border border-slate-200 font-mono text-xs"
       placeholder="Przykład:
-Klinika A | ul. Przykładowa 1, 00-000 Warszawa, Poland | Warszawa | +48 000 000 000 | https://example.com | ambassadors
+Klinika A | ul. Przykładowa 1, 00-000 Warszawa, Poland | Warszawa | +48 000 000 000 | https://example.com | authorized
 Klinika B | ul. Inna 2, 30-000 Kraków, Poland | Kraków |  |  | authorized"></textarea>
 
     <button class="px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800">Importuj</button>

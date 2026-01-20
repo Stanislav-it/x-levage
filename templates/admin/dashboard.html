@@ -20,7 +20,6 @@
     <input name="q" value="{{ q }}" placeholder="Szukaj" class="flex-1 px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
     <select name="view" class="px-4 py-3 rounded-2xl border border-slate-200 w-full sm:w-auto">
       <option value="all" {% if view=='all' %}selected{% endif %}>Wszystkie</option>
-      <option value="ambassadors" {% if view=='ambassadors' %}selected{% endif %}>Ambasadorzy</option>
       <option value="authorized" {% if view=='authorized' %}selected{% endif %}>Autoryzowane</option>
     </select>
     <button class="px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800 w-full sm:w-auto">Filtruj</button>
@@ -48,7 +47,7 @@
               <td class="text-slate-500">#{{ c.id }}</td>
               <td>
                 <span class="px-2 py-1 rounded-lg border border-slate-200">
-                  {{ "Ambasador" if c.kind=="ambassadors" else "Autoryzowany" }}
+                  {{ "Showroom" if c.name=="Showroom Firmowy" else "Autoryzowany" }}
                 </span>
               </td>
               <td class="font-semibold">{{ c.name }}</td>

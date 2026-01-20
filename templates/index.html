@@ -22,7 +22,7 @@
           X‑Levage Pro i X‑Levage Erbo
         </h1>
         <p class="mt-5 text-white/85 leading-relaxed text-base sm:text-lg">
-          Technologia, materiały katalogowe, efekty oraz mapa gabinetów (ambasadorzy i autoryzowani).
+          Technologia, materiały katalogowe, efekty oraz mapa autoryzowanych gabinetów.
         </p>
 
         <div class="mt-7 flex flex-col sm:flex-row gap-3">
@@ -67,7 +67,7 @@
         </div>
         <div class="rounded-2xl border border-slate-100 p-4">
           <div class="text-xs text-slate-500">Mapa gabinetów</div>
-          <div class="mt-1 font-semibold">Ambasadorzy i autoryzowani</div>
+          <div class="mt-1 font-semibold">Showroom i autoryzowane</div>
         </div>
       </div>
     </div>
@@ -165,9 +165,7 @@
         <h2 class="text-2xl font-semibold tracking-tight">Mapa gabinetów</h2>
         <p class="mt-2 text-slate-600">Wybierz gabinet na mapie lub przejdź do pełnej listy.</p>
         <div class="mt-6 flex gap-3 flex-wrap">
-          <a href="{{ url_for('gabinet', view='ambassadors') }}" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm">Gabinetów ambasadorskich</a>
-          <a href="{{ url_for('gabinet', view='authorized') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-sm">Gabinetów autoryzowanych</a>
-          <a href="{{ url_for('gabinet', view='all') }}" class="px-4 py-2 rounded-xl border border-slate-200 text-sm">Wszystkie</a>
+          <a href="{{ url_for('gabinet') }}" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-sm">Zobacz autoryzowane gabinety</a>
         </div>
       </div>
       <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden">
@@ -234,15 +232,15 @@
       // Default view (Poland)
       map.setView([52.1, 19.4], 6);
 
-      fetch('{{ url_for('api_clinics') }}?view=all')
+      fetch('{{ url_for('api_clinics') }}?view=authorized')
         .then(r => r.json())
         .then(data => {
           const clinics = (data && data.clinics) ? data.clinics : [];
           const pts = [];
           clinics.forEach(c => {
-            if (!c || c.lat == null || c.lng == null) return;
+            if (!c || c.lat == null || c.lon == null) return;
             const lat = parseFloat(c.lat);
-            const lng = parseFloat(c.lng);
+            const lng = parseFloat(c.lon);
             if (!isFinite(lat) || !isFinite(lng)) return;
             pts.push([lat, lng]);
             const title = c.name || 'Gabinet';

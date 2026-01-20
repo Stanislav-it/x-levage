@@ -21,10 +21,10 @@
     <div class="grid sm:grid-cols-2 gap-4">
       <div>
         <label class="text-xs text-slate-500">Typ</label>
-        <select name="kind" class="mt-1 w-full px-4 py-3 rounded-2xl border border-slate-200">
-          <option value="ambassadors" {% if clinic and clinic.kind=='ambassadors' %}selected{% endif %}>Gabinet ambasadorski</option>
-          <option value="authorized" {% if not clinic or clinic.kind=='authorized' %}selected{% endif %}>Gabinet autoryzowany</option>
-        </select>
+        <div class="mt-1 px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-sm text-slate-700">
+          Gabinet autoryzowany / showroom
+        </div>
+        <input type="hidden" name="kind" value="authorized">
       </div>
       <div>
         <label class="text-xs text-slate-500">Miasto (opcjonalnie)</label>
