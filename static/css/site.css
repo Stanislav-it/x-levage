@@ -98,6 +98,15 @@ img, video { max-width: 100%; height: auto; }
   display: block;
   object-fit: cover;
 }
+
+/* Catalog pages (do not crop) */
+.catalog-page{
+  background: #fff;
+}
+.catalog-page img{
+  object-fit: contain;
+  background: #fff;
+}
 .media-caption{
   position: absolute;
   left: 0; right: 0; bottom: 0;
