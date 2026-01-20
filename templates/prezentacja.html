@@ -12,6 +12,39 @@
         Prezentacja jest bezpłatna.
       </p>
 
+      <div class="mt-6 rounded-3xl border border-slate-100 p-6 bg-white shadow-soft">
+        <div class="text-base sm:text-lg font-semibold">
+          Gabinety Ambasadorskie w których zrealizujesz bezplatną prezentacje lasera
+        </div>
+        <p class="mt-2 text-sm text-slate-600">
+          Poniżej lista gabinetów ambasadorskich. Pozostałe gabinety na mapie są autoryzowane i nie realizują pokazów.
+        </p>
+        <div class="mt-4 grid gap-3">
+          {% for c in (ambassador_clinics or []) %}
+            <div class="rounded-2xl border border-slate-100 p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="font-semibold">{{ c.name }}</div>
+                  <div class="mt-1 text-sm text-slate-600">{{ c.address }}</div>
+                  {% if c.city %}<div class="mt-1 text-xs text-slate-500">{{ c.city }}</div>{% endif %}
+                  {% if c.phone %}
+                    <div class="mt-2 text-sm">
+                      <a class="underline" href="tel:{{ (c.phone or '')|replace(' ', '') }}">{{ c.phone }}</a>
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="text-xs text-slate-500">
+                  {% if c.name == 'Showroom Firmowy' %}Showroom{% else %}Ambasadorski{% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+          {% if not (ambassador_clinics or []) %}
+            <div class="text-sm text-slate-600">Brak gabinetów ambasadorskich do wyświetlenia.</div>
+          {% endif %}
+        </div>
+      </div>
+
       <div class="mt-6 rounded-3xl border border-slate-100 p-6 bg-slate-50">
         <div class="text-sm font-semibold">Co otrzymasz?</div>
         <ul class="mt-3 text-sm text-slate-700 list-disc pl-5 space-y-2">

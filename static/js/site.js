@@ -63,6 +63,22 @@
     // Browsers block autoplay-with-sound; start muted and allow user to unmute.
     video.muted = true;
 
+    // Best-effort: ensure the hero video actually starts (some browsers pause until user gesture).
+    const tryPlay = () => {
+      try {
+        const p = video.play();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+      } catch (_) {}
+    };
+
+    // Attempt to play as soon as possible.
+    tryPlay();
+    video.addEventListener('loadeddata', tryPlay, { once: true });
+    video.addEventListener('canplay', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) tryPlay();
+    });
+
     function updateLabel() {
       soundToggle.textContent = video.muted ? 'Włącz dźwięk' : 'Wycisz';
     }
@@ -84,11 +100,7 @@
       }
     });
 
-    // Optional: click video to pause/play
-    video.addEventListener('click', () => {
-      if (video.paused) video.play().catch(() => {});
-      else video.pause();
-    });
+    // Do not attach click-to-pause (touch users can pause accidentally).
   }
 
   // ---------------- Effects gallery: show first N, then load more ----------------

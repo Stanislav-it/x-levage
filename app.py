@@ -359,7 +359,9 @@ def create_app():
 
     @app.get("/umow-prezentacje")
     def prezentacja():
-        return render_template("prezentacja.html")
+        # Only ambassadors (incl. Showroom) offer free device presentations.
+        ambassador_clinics = search_clinics(view="ambassadors", q="", limit=500)
+        return render_template("prezentacja.html", ambassador_clinics=ambassador_clinics)
 
     @app.post("/umow-prezentacje")
     def prezentacja_post():
