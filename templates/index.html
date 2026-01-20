@@ -191,6 +191,7 @@
       <div class="mt-6 space-y-2 text-sm text-slate-700">
         {% if CONTACT_PHONE %}<div>Telefon/WhatsApp: <a class="underline" href="tel:{{ CONTACT_PHONE|replace(' ','') }}">{{ CONTACT_PHONE }}</a></div>{% endif %}
         {% if CONTACT_EMAIL %}<div>E‑mail: <a class="underline" href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a></div>{% endif %}
+        {% if FACEBOOK_URL %}<div>Facebook: <a class="underline" href="{{ FACEBOOK_URL }}" target="_blank" rel="noopener">/lasertulowyxlevage</a></div>{% endif %}
       </div>
     </div>
     <div class="rounded-3xl border border-slate-100 p-6 shadow-soft">

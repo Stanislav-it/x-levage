@@ -126,7 +126,12 @@ def create_app():
         INSTAGRAM_URL=os.environ.get(
             "INSTAGRAM_URL",
             "https://www.instagram.com/xestetik?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
-        ),
+
+
+        FACEBOOK_URL=os.environ.get(
+            "FACEBOOK_URL",
+            "https://www.facebook.com/lasertulowyxlevage",
+        ),        ),
 
         # Contact form email delivery
         MAIL_TO=os.environ.get("MAIL_TO", "xlevage@gmail.com"),
