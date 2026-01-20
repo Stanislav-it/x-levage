@@ -1088,13 +1088,30 @@ def geocode_address(address: str):
         return (cached["lat"], cached["lon"])
 
     # Polite Nominatim usage: one request per second and a valid UA.
+    # IMPORTANT: prefer app config over env vars so the default UA configured
+    # in create_app() is actually used in production.
     time.sleep(1.0)
     try:
+        ua = (
+            (current_app.config.get("NOMINATIM_USER_AGENT") if current_app else "")
+            or os.environ.get("NOMINATIM_USER_AGENT", "")
+            or "xlevage-site/1.0 (contact: xlevage@gmail.com)"
+        )
+
         resp = requests.get(
             "https://nominatim.openstreetmap.org/search",
-            params={"format": "json", "limit": 1, "q": address_q},
-            headers={"User-Agent": os.environ.get("NOMINATIM_USER_AGENT", "xlevage-site/1.0")},
-            timeout=10,
+            params={
+                "format": "json",
+                "limit": 1,
+                "q": address_q,
+                "countrycodes": "pl",
+                "addressdetails": 0,
+            },
+            headers={
+                "User-Agent": ua,
+                "Accept-Language": "pl",
+            },
+            timeout=12,
         )
         resp.raise_for_status()
         data = resp.json()
