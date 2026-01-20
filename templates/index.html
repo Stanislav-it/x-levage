@@ -9,7 +9,7 @@
 {% block content %}
 <!-- Fullscreen video hero (Neuralink-like) -->
 <section class="relative h-[calc(100vh-64px)] min-h-[640px] overflow-hidden">
-  <video id="heroVideo" class="absolute inset-0 h-full w-full object-cover" autoplay loop playsinline muted preload="auto" webkit-playsinline>
+  <video id="heroVideo" class="absolute inset-0 h-full w-full object-cover" autoplay loop playsinline muted preload="auto" webkit-playsinline disablepictureinpicture controlslist="nodownload noremoteplayback noplaybackrate" poster="{{ url_for('static', filename='img/hero_poster.jpg') }}">
     <source src="{{ url_for('static', filename='video/hero.mp4') }}" type="video/mp4" />
   </video>
   <div class="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-white/0"></div>
@@ -28,7 +28,6 @@
         <div class="mt-7 flex flex-col sm:flex-row gap-3">
           <a href="{{ url_for('pro') }}" class="px-6 py-3 rounded-2xl bg-white text-slate-900 hover:bg-white/90 shadow-soft">Poznaj X‑Levage Pro</a>
           <a href="{{ url_for('erbo') }}" class="px-6 py-3 rounded-2xl border border-white/60 text-white hover:bg-white/10">Poznaj X‑Levage Erbo</a>
-          <button id="soundToggle" type="button" class="px-6 py-3 rounded-2xl border border-white/60 text-white hover:bg-white/10">Włącz dźwięk</button>
         </div>
 
         <div class="mt-6 flex items-center gap-3 text-white/75 text-sm">

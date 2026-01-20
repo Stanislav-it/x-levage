@@ -59,11 +59,13 @@
     });
   }
 
-  if (video && soundToggle) {
-    // Browsers block autoplay-with-sound; start muted and allow user to unmute.
+  if (video) {
+    // iOS/FB in-app browsers can be strict: ensure muted + inline playback, then try autoplay.
     video.muted = true;
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
 
-    // Best-effort: ensure the hero video actually starts (some browsers pause until user gesture).
     const tryPlay = () => {
       try {
         const p = video.play();
@@ -71,7 +73,7 @@
       } catch (_) {}
     };
 
-    // Attempt to play as soon as possible.
+    // Best-effort autoplay
     tryPlay();
     video.addEventListener('loadeddata', tryPlay, { once: true });
     video.addEventListener('canplay', tryPlay, { once: true });
@@ -79,31 +81,42 @@
       if (!document.hidden) tryPlay();
     });
 
-    function updateLabel() {
-      soundToggle.textContent = video.muted ? 'Włącz dźwięk' : 'Wycisz';
-    }
+    // Fallback: start on first user interaction (fixes iPhone / in-app autoplay blocks)
+    const armGesture = () => {
+      const handler = () => {
+        tryPlay();
+        window.removeEventListener('touchstart', handler, true);
+        window.removeEventListener('click', handler, true);
+        window.removeEventListener('scroll', handler, true);
+      };
+      window.addEventListener('touchstart', handler, true);
+      window.addEventListener('click', handler, true);
+      window.addEventListener('scroll', handler, true);
+    };
+    armGesture();
 
-    updateLabel();
-
-    soundToggle.addEventListener('click', async () => {
-      try {
-        video.muted = !video.muted;
-        if (!video.muted) {
-          video.volume = 1.0;
+    // Optional sound toggle if present (kept for compatibility)
+    if (soundToggle) {
+      const updateLabel = () => {
+        soundToggle.textContent = video.muted ? 'Włącz dźwięk' : 'Wycisz';
+      };
+      updateLabel();
+      soundToggle.addEventListener('click', async () => {
+        try {
+          video.muted = !video.muted;
+          if (!video.muted) video.volume = 1.0;
+          await video.play();
+        } catch (_) {
+          video.muted = true;
+        } finally {
+          updateLabel();
         }
-        await video.play();
-      } catch (_) {
-        // If play fails, keep muted.
-        video.muted = true;
-      } finally {
-        updateLabel();
-      }
-    });
-
-    // Do not attach click-to-pause (touch users can pause accidentally).
+      });
+    }
   }
 
   // ---------------- Effects gallery: show first N, then load more ----------------
+: show first N, then load more ----------------
   document.querySelectorAll('[data-effects-gallery]').forEach((gallery) => {
     const items = Array.from(gallery.querySelectorAll('[data-effects-item]'));
     const moreBtn = gallery.querySelector('[data-effects-more]');

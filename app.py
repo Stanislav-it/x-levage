@@ -1,5 +1,9 @@
 
 import os
+import mimetypes
+
+# Ensure correct MIME types for video on iOS/Safari
+mimetypes.add_type('video/mp4', '.mp4')
 import sqlite3
 import time
 import math
