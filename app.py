@@ -350,8 +350,9 @@ def create_app():
 
     @app.get("/gabinet")
     def gabinet():
-        # Public page: show only authorized/showroom locations.
-        view = request.args.get("view", "authorized")  # authorized | all
+        # Public page: by default show all official locations.
+        # view: all | ambassadors | authorized
+        view = request.args.get("view", "all")
         q = request.args.get("q", "").strip()
         clinics = search_clinics(view=view, q=q, limit=500)
         return render_template("gabinet.html", clinics=clinics, view=view, q=q)
@@ -688,82 +689,192 @@ def init_db():
 
 
 def official_clinics_list():
-    """Canonical list for the public "Autoryzowane Gabinety" map.
+    """Canonical list for the public map.
 
-    Notes:
-    - kind is kept as 'authorized' for all entries.
-    - lat/lon may be NULL; the admin can geocode if needed.
+    We keep two categories:
+    - kind='ambassadors' for locations where a free device presentation is available.
+    - kind='authorized' for all other authorized locations.
+
+    lat/lon are resolved automatically on first run via Nominatim (and cached).
     """
+    # Ambassadors list as provided by the client:
+    # Showroom + 4,5,8,10,13,14,16,19,20,21,22
     return [
+        # 1 (renamed)
         {
+            "kind": "ambassadors",
             "name": "Showroom Firmowy",
-            "address": "Zabrska 15, Katowice",
+            "address": "Zabrska 15, 40-101 Katowice, Polska",
             "city": "Katowice",
             "phone": "503551055",
         },
+
+        # 2
         {
+            "kind": "authorized",
+            "name": "Allure Strefa Piękna",
+            "address": "Aleja Wojska Polskiego 70C, Zielona Góra, Polska",
+            "city": "Zielona Góra",
+            "phone": "+48600331773",
+        },
+        # 3
+        {
+            "kind": "authorized",
+            "name": "The Beauty Aleksandra Szymczak",
+            "address": "Młynarska 119, Kalisz, Polska",
+            "city": "Kalisz",
+            "phone": "606911114",
+        },
+
+        # 4
+        {
+            "kind": "ambassadors",
             "name": "Salon Pretty WOMEN",
-            "address": "Okrzei 39, 87-800 Włocławek",
+            "address": "Okrzei 39, 87-800 Włocławek, Polska",
             "city": "Włocławek",
             "phone": "604446352",
         },
+        # 5
         {
+            "kind": "ambassadors",
             "name": "EK Medica Clinic",
-            "address": "Lubartowska 77, Lublin",
+            "address": "Lubartowska 77, Lublin, Polska",
             "city": "Lublin",
             "phone": "531090033",
         },
+        # 6
         {
+            "kind": "authorized",
+            "name": "Aurevia Clinic",
+            "address": "Rynkowa 96, Przeźmierowo, Polska",
+            "city": "Przeźmierowo",
+            "phone": "508522474",
+        },
+        # 7
+        {
+            "kind": "authorized",
+            "name": "Beauty Spa Iwona Olszowiak",
+            "address": "Sienkiewicza 21, Świeradów-Zdrój, Polska",
+            "city": "Świeradów-Zdrój",
+            "phone": "662070569",
+        },
+        # 8
+        {
+            "kind": "ambassadors",
             "name": "Kosmetologia Trychologia Paulina Wiszniowska",
-            "address": "Morelowa 34, Zielona Góra",
+            "address": "Morelowa 34, Zielona Góra, Polska",
             "city": "Zielona Góra",
             "phone": "531431273",
         },
+        # 9
         {
+            "kind": "authorized",
+            "name": "Centrum Urody Chłodnamed",
+            "address": "Chłodna 26, Radom, Polska",
+            "city": "Radom",
+            "phone": "502166165",
+        },
+        # 10
+        {
+            "kind": "ambassadors",
             "name": "Gacka Permanent & Estetyka",
-            "address": "Paprocańska 47, Tychy",
+            "address": "Paprocańska 47, Tychy, Polska",
             "city": "Tychy",
             "phone": "508175609",
         },
+        # 11
         {
+            "kind": "authorized",
+            "name": "Beauty Home Kosmetologia",
+            "address": "Ochabska 5, Kiczyce, Skoczów, Polska",
+            "city": "Kiczyce (Skoczów)",
+            "phone": "505633026",
+        },
+        # 12
+        {
+            "kind": "authorized",
+            "name": "Centrum Urody Roksana Wesołowska",
+            "address": "Długosza 33, Człuchów, Polska",
+            "city": "Człuchów",
+            "phone": "794433098",
+        },
+        # 13
+        {
+            "kind": "ambassadors",
             "name": "Permanentny Martinez",
-            "address": "Granitowa 6/1, Smolec",
+            "address": "Granitowa 6/1, Smolec, Polska",
             "city": "Smolec",
             "phone": "577019130",
         },
+        # 14
         {
+            "kind": "ambassadors",
             "name": "Salon Urody Czapla Iwona Nalikowska",
-            "address": "Pomorska 64, Czaple",
+            "address": "Pomorska 64, Czaple, Polska",
             "city": "Czaple",
             "phone": "530526227",
         },
+        # 15
         {
+            "kind": "authorized",
+            "name": "Akademia Piękna Health and Beauty",
+            "address": "Trablice 32, Trablice, Polska",
+            "city": "Trablice",
+            "phone": "509837346",
+        },
+        # 16
+        {
+            "kind": "ambassadors",
             "name": "Holies Aesthetic",
-            "address": "Sąsiedzka 13a, Poznań",
+            "address": "Sąsiedzka 13a, Poznań, Polska",
             "city": "Poznań",
             "phone": "537233229",
         },
+        # 17
         {
+            "kind": "authorized",
+            "name": "Skwarczyńska Skin Clinic & Academy",
+            "address": "Hierowskiego 37, Tychy, Polska",
+            "city": "Tychy",
+            "phone": "783526204",
+        },
+        # 18
+        {
+            "kind": "authorized",
+            "name": "Galeria Urody Roza",
+            "address": "Grunwaldzka 55/18, Płońsk, Polska",
+            "city": "Płońsk",
+            "phone": "509833765",
+        },
+        # 19
+        {
+            "kind": "ambassadors",
             "name": "Salon Victoria",
-            "address": "Kościuszki 12, Ropczyce",
+            "address": "Kościuszki 12, Ropczyce, Polska",
             "city": "Ropczyce",
             "phone": "+48533014472",
         },
+        # 20
         {
+            "kind": "ambassadors",
             "name": "Studio Urody Anna Kaczmarek",
-            "address": "Adama Mickiewicza 15, Nowy Tomyśl",
+            "address": "Adama Mickiewicza 15, Nowy Tomyśl, Polska",
             "city": "Nowy Tomyśl",
             "phone": "697384364",
         },
+        # 21
         {
+            "kind": "ambassadors",
             "name": "Kowalewska Medycyna Estetyczna",
-            "address": "Książkowa 9G, Warszawa",
+            "address": "Książkowa 9G, Warszawa, Polska",
             "city": "Warszawa",
             "phone": "502431843",
         },
+        # 22
         {
+            "kind": "ambassadors",
             "name": "Instytut Urody i Makijażu Permanentnego Wioletta Kolasa",
-            "address": "Kopernika 7a, Wieliczka",
+            "address": "Kopernika 7a, Wieliczka, Polska",
             "city": "Wieliczka",
             "phone": "501232995",
         },
@@ -771,7 +882,13 @@ def official_clinics_list():
 
 
 def sync_official_clinics(db):
-    """Keep only the official clinics list and remove ambassadors."""
+    """Synchronize the clinics table with the official list.
+
+    Rules:
+    - Keep *only* entries present in `official_clinics_list()`.
+    - Enforce the exact `kind` (ambassadors/authorized) from the official list.
+    - Best-effort geocode missing coordinates (cached in `geocode_cache`).
+    """
     try:
         rows = db.execute("SELECT id, kind, name, address, city, phone FROM clinics").fetchall()
     except Exception:
@@ -788,6 +905,17 @@ def sync_official_clinics(db):
         for c in official
     )
 
+    # Map key -> desired kind (so we can enforce categories).
+    desired_kind = {
+        (
+            (c.get("name", "") or "").strip(),
+            (c.get("address", "") or "").strip(),
+            (c.get("city", "") or "").strip(),
+            (c.get("phone", "") or "").strip(),
+        ): (c.get("kind") or "authorized")
+        for c in official
+    }
+
     existing_keys = set()
     to_delete_ids = []
     for r in rows:
@@ -799,10 +927,13 @@ def sync_official_clinics(db):
         )
         if key in allowed_keys:
             existing_keys.add(key)
-            # Enforce kind=authorized (no ambassadors).
-            if r["kind"] != "authorized":
-                db.execute("UPDATE clinics SET kind=?, updated_at=? WHERE id=?",
-                           ("authorized", datetime.utcnow().isoformat(timespec="seconds"), r["id"]))
+            # Enforce official kind.
+            want = desired_kind.get(key, "authorized")
+            if r["kind"] != want:
+                db.execute(
+                    "UPDATE clinics SET kind=?, updated_at=? WHERE id=?",
+                    (want, datetime.utcnow().isoformat(timespec="seconds"), r["id"]),
+                )
         else:
             # Remove any non-official entries, including ambassadors/demo.
             to_delete_ids.append(r["id"])
@@ -824,7 +955,7 @@ def sync_official_clinics(db):
             """INSERT INTO clinics(kind,name,address,city,phone,website,notes,lat,lon,created_at,updated_at)
                VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
             (
-                "authorized",
+                (c.get("kind") or "authorized"),
                 c["name"].strip(),
                 c["address"].strip(),
                 c.get("city", "").strip(),
@@ -839,6 +970,22 @@ def sync_official_clinics(db):
         )
 
     db.commit()
+
+    # Best-effort: geocode all official entries that do not have coordinates yet.
+    try:
+        rows = db.execute("SELECT id, address, lat, lon FROM clinics").fetchall()
+        for r in rows:
+            if r["lat"] and r["lon"]:
+                continue
+            lat, lon = geocode_address(r["address"])
+            if lat and lon:
+                db.execute(
+                    "UPDATE clinics SET lat=?, lon=?, updated_at=? WHERE id=?",
+                    (lat, lon, datetime.utcnow().isoformat(timespec="seconds"), r["id"]),
+                )
+        db.commit()
+    except Exception as _exc:
+        print(f"[WARN] Geocode sync failed: {_exc}")
 
 def row_to_dict(row):
     if row is None: return None
@@ -856,6 +1003,12 @@ def search_clinics(view="all", q="", limit=500):
     if view == "authorized":
         where.append("kind=?")
         params.append("authorized")
+    elif view == "ambassadors":
+        where.append("kind=?")
+        params.append("ambassadors")
+    elif view == "ambassadors":
+        where.append("kind=?")
+        params.append("ambassadors")
     if q:
         where.append("(name LIKE ? OR address LIKE ? OR city LIKE ?)")
         qq = f"%{q}%"
@@ -923,6 +1076,12 @@ def geocode_address(address: str):
     if not address:
         return (None, None)
 
+    # Improve hit-rate: if user provided a partial address, bias search to Poland.
+    if "polska" not in address.lower() and "poland" not in address.lower():
+        address_q = f"{address}, Polska"
+    else:
+        address_q = address
+
     db = get_db()
     cached = db.execute("SELECT lat, lon FROM geocode_cache WHERE address=?", (address,)).fetchone()
     if cached and cached["lat"] and cached["lon"]:
@@ -933,7 +1092,7 @@ def geocode_address(address: str):
     try:
         resp = requests.get(
             "https://nominatim.openstreetmap.org/search",
-            params={"format": "json", "limit": 1, "q": address},
+            params={"format": "json", "limit": 1, "q": address_q},
             headers={"User-Agent": os.environ.get("NOMINATIM_USER_AGENT", "xlevage-site/1.0")},
             timeout=10,
         )

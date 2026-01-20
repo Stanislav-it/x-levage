@@ -14,7 +14,7 @@
   </div>
 
   <form class="mt-6 flex gap-3" method="get" action="{{ url_for('gabinet') }}">
-    <input type="hidden" name="view" value="authorized">
+    <input type="hidden" name="view" value="{{ view }}">
     <input name="q" value="{{ q }}" placeholder="Szukaj: miasto / nazwa / ulica" class="flex-1 px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
     <button class="px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800">Szukaj</button>
   </form>
@@ -49,7 +49,13 @@
                   <div class="mt-1 text-sm text-slate-600">{{ c.address }}</div>
                   {% if c.city %}<div class="mt-1 text-xs text-slate-500">{{ c.city }}</div>{% endif %}
                   <div class="mt-2 flex gap-2 flex-wrap text-xs">
-                    <span class="px-2 py-1 rounded-lg border border-slate-200">{{ "Showroom" if c.name=="Showroom Firmowy" else "Ambasadorski" }}</span>
+                    {% if c.name=="Showroom Firmowy" %}
+                      <span class="px-2 py-1 rounded-lg border border-slate-200">Showroom</span>
+                    {% elif c.kind=="ambassadors" %}
+                      <span class="px-2 py-1 rounded-lg border border-slate-200">Ambasadorski</span>
+                    {% else %}
+                      <span class="px-2 py-1 rounded-lg border border-slate-200">Autoryzowany</span>
+                    {% endif %}
                     {% if c.phone %}<span class="px-2 py-1 rounded-lg border border-slate-200">{{ c.phone }}</span>{% endif %}
                     {% if c.website %}<span class="px-2 py-1 rounded-lg border border-slate-200">www</span>{% endif %}
                   </div>
@@ -73,7 +79,7 @@
 {% block scripts %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-  const view = "authorized";
+  const view = {{ view|tojson }};
   const q = {{ q|tojson }};
 
   const map = L.map('map', { scrollWheelZoom: true }).setView([52.237, 21.017], 6); // PL default
@@ -92,7 +98,9 @@
   const markers = new Map();
 
   function popupHtml(c) {
-    const kind = (c.name === 'Showroom Firmowy') ? 'Showroom firmowy' : 'Gabinet ambasadorski';
+    let kind = 'Gabinet autoryzowany';
+    if (c.name === 'Showroom Firmowy') kind = 'Showroom firmowy';
+    else if (c.kind === 'ambassadors') kind = 'Gabinet ambasadorski';
     const phone = c.phone ? `<div class="mt-2 text-sm"><a class="underline" href="tel:${(c.phone||'').replace(/\s/g,'')}">${c.phone}</a></div>` : '';
     const web = c.website ? `<div class="mt-1 text-sm"><a class="underline" href="${c.website}" target="_blank" rel="noopener">Strona www</a></div>` : '';
     return `
