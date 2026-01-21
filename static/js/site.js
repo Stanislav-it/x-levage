@@ -49,7 +49,6 @@
 
 // ---------------- Video hero ----------------
   const video = document.getElementById('heroVideo');
-  const soundToggle = document.getElementById('soundToggle');
   const scrollNext = document.getElementById('scrollNext');
 
   if (scrollNext) {
@@ -99,25 +98,6 @@
     window.addEventListener('click', startOnFirstGesture, { capture: true, once: true });
     window.addEventListener('scroll', startOnFirstGesture, { passive: true, capture: true, once: true });
 
-    if (soundToggle) {
-      function updateLabel() {
-        soundToggle.textContent = video.muted ? 'Włącz dźwięk' : 'Wycisz';
-      }
-
-      updateLabel();
-
-      soundToggle.addEventListener('click', async () => {
-        try {
-          video.muted = !video.muted;
-          if (!video.muted) video.volume = 1.0;
-          await video.play();
-        } catch (_) {
-          video.muted = true;
-        } finally {
-          updateLabel();
-        }
-      });
-    }
     // Do not attach click-to-pause (touch users can pause accidentally).
   }
 
