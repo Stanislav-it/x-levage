@@ -8,6 +8,38 @@
   <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}?v=16">
+  <style>
+    /* iOS/Safari: hide native overlay play icon for background hero video */
+    #heroVideo::-webkit-media-controls,
+    #heroVideo::-webkit-media-controls-enclosure,
+    #heroVideo::-webkit-media-controls-panel,
+    #heroVideo::-webkit-media-controls-overlay-play-button,
+    #heroVideo::-webkit-media-controls-start-playback-button {
+      display: none !important;
+      -webkit-appearance: none !important;
+    }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const v = document.getElementById('heroVideo');
+      if (!v) return;
+      v.muted = true;
+      v.playsInline = true;
+      const tryPlay = () => {
+        try {
+          const p = v.play();
+          if (p && typeof p.catch === 'function') p.catch(() => {});
+        } catch (e) {}
+      };
+      tryPlay();
+      const kick = () => { tryPlay(); };
+      window.addEventListener('touchstart', kick, { once: true, passive: true });
+      window.addEventListener('click', kick, { once: true, passive: true });
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) tryPlay();
+      });
+    });
+  </script>
   {% block head %}{% endblock %}
 </head>
 <body class="bg-white text-slate-900 antialiased">

@@ -1,12 +1,9 @@
-
+from __future__ import annotations
 import os
-import mimetypes
-
-# Ensure correct MIME types for video on iOS/Safari
-mimetypes.add_type('video/mp4', '.mp4')
 import sqlite3
 import time
 import math
+from typing import List, Tuple, Optional
 from datetime import datetime
 from email.message import EmailMessage
 import smtplib
@@ -35,7 +32,7 @@ APP_DIR = os.path.abspath(os.path.dirname(__file__))
 # To be resilient, we automatically fall back to a writable local directory.
 # ---------------------------------------------------------------------------
 
-def _first_writable_dir(candidates: list[str]) -> str:
+def _first_writable_dir(candidates: List[str]) -> str:
     """Return the first directory we can create/write to."""
     for d in candidates:
         if not d:
@@ -55,7 +52,7 @@ def _first_writable_dir(candidates: list[str]) -> str:
     return d
 
 
-def resolve_storage_paths() -> tuple[str, str]:
+def resolve_storage_paths() -> Tuple[str, str]:
     """Return (instance_dir, db_path) using env vars with safe fallbacks."""
     data_dir = (os.environ.get("DATA_DIR") or "").strip()
     desired_instance = os.path.join(data_dir, "instance") if data_dir else ""
@@ -267,7 +264,7 @@ def create_app():
         except Exception as exc:
             print(f"[WARN] Failed to archive lead to disk: {exc}")
 
-    def send_lead_email(*, name: str, email: str, phone: str, message: str, lead_id: int | None = None, created_at: str | None = None) -> bool:
+    def send_lead_email(*, name: str, email: str, phone: str, message: str, lead_id: Optional[int] = None, created_at: Optional[str] = None) -> bool:
         """Send a contact form notification via SMTP.
 
         Delivery is best-effort: if SMTP is not configured or sending fails,
