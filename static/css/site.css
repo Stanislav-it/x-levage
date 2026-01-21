@@ -248,3 +248,13 @@ img, video { max-width: 100%; height: auto; }
   display: none !important;
   -webkit-appearance: none;
 }
+
+#heroVideo::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+}
+#heroVideo::-webkit-media-controls-overlay-enclosure {
+  display: none !important;
+}
+#heroVideo::-webkit-media-controls-enclosure {
+  display: none !important;
+}

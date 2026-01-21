@@ -50,6 +50,9 @@
 // ---------------- Video hero ----------------
   const video = document.getElementById('heroVideo');
   const scrollNext = document.getElementById('scrollNext');
+  const soundToggle = document.getElementById('soundToggle');
+  const soundIcon = document.getElementById('soundIcon');
+  const soundLabel = document.getElementById('soundLabel');
 
   if (scrollNext) {
     scrollNext.addEventListener('click', () => {
@@ -65,10 +68,20 @@
     video.setAttribute('muted', '');
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
+    // Ensure src is set only after muted/playsinline are applied (helps iOS autoplay).
+    const dataSrc = video.getAttribute('data-src');
+    if (dataSrc && !video.getAttribute('src')) {
+      video.setAttribute('src', dataSrc);
+      try { video.load(); } catch (_) {}
+    }
+
 
     // Best-effort: ensure the hero video actually starts (iOS/FB in-app can be finicky).
     const tryPlay = () => {
       try {
+        if (video.readyState === 0) {
+          try { video.load(); } catch (_) {}
+        }
         const p = video.play();
         if (p && typeof p.catch === 'function') p.catch(() => {});
       } catch (_) {}
@@ -99,6 +112,32 @@
     window.addEventListener('scroll', startOnFirstGesture, { passive: true, capture: true, once: true });
 
     // Do not attach click-to-pause (touch users can pause accidentally).
+
+
+    // Optional: user-controlled sound toggle (does not affect autoplay: video starts muted).
+    if (soundToggle) {
+      const renderSoundState = () => {
+        const on = !video.muted;
+        if (soundIcon) soundIcon.textContent = on ? '🔊' : '🔇';
+        if (soundLabel) soundLabel.textContent = on ? 'Dźwięk: wł.' : 'Dźwięk: wył.';
+      };
+      renderSoundState();
+
+      soundToggle.addEventListener('click', async () => {
+        try {
+          video.muted = !video.muted;
+          video.defaultMuted = video.muted;
+          if (!video.muted) video.volume = 1.0;
+          await video.play();
+        } catch (_) {
+          // If unmuted playback is blocked, keep muted.
+          video.muted = true;
+          video.defaultMuted = true;
+        } finally {
+          renderSoundState();
+        }
+      });
+    }
   }
 
   // ---------------- Effects gallery: show first N, then load more ----------------
