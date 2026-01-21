@@ -233,3 +233,18 @@ img, video { max-width: 100%; height: auto; }
     overflow: hidden;
   }
 }
+
+/* iOS/Safari: hide native play overlay/controls on background hero video */
+#heroVideo::-webkit-media-controls {
+  display: none !important;
+}
+#heroVideo::-webkit-media-controls-panel {
+  display: none !important;
+}
+#heroVideo::-webkit-media-controls-play-button {
+  display: none !important;
+}
+#heroVideo::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
