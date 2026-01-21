@@ -18,7 +18,8 @@
     playsinline
     webkit-playsinline
     preload="auto"
-    data-src="{{ url_for('static', filename='video/hero_ios.mp4') }}"
+    data-src="{{ url_for('static', filename='video/hero_silent.mp4') }}"
+    data-audio-src="{{ url_for('static', filename='video/hero.mp4') }}"
     disablepictureinpicture
     controlslist="nodownload noplaybackrate noremoteplayback"
     aria-hidden="true"
@@ -50,9 +51,8 @@
             </svg>
           </button>
 
-          <button type="button" id="soundToggle" class="inline-flex items-center gap-2 rounded-full border border-white/40 px-3 py-1 hover:bg-white/10 hover:text-white" aria-label="Przełącz dźwięk">
-            <span id="soundIcon" aria-hidden="true">🔇</span>
-            <span id="soundLabel">Dźwięk: wył.</span>
+          <button type="button" id="soundToggle" class="inline-flex items-center rounded-full border border-white/40 px-3 py-1 hover:bg-white/10 hover:text-white" aria-label="Przełącz dźwięk">
+            <span id="soundLabel">Włącz dźwięk</span>
           </button>
 
           <span class="text-white/50">•</span>

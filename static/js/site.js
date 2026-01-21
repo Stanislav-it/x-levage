@@ -51,7 +51,6 @@
   const video = document.getElementById('heroVideo');
   const scrollNext = document.getElementById('scrollNext');
   const soundToggle = document.getElementById('soundToggle');
-  const soundIcon = document.getElementById('soundIcon');
   const soundLabel = document.getElementById('soundLabel');
 
   if (scrollNext) {
@@ -69,10 +68,32 @@
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
     // Ensure src is set only after muted/playsinline are applied (helps iOS autoplay).
-    const dataSrc = video.getAttribute('data-src');
-    if (dataSrc && !video.getAttribute('src')) {
-      video.setAttribute('src', dataSrc);
+    // Use a silent asset for autoplay reliability; swap to the audio asset when the user enables sound.
+    const silentSrc = video.getAttribute('data-src');
+    const audioSrc = video.getAttribute('data-audio-src') || '';
+
+    function setSrcKeepTime(nextSrc, nextMuted) {
+      if (!nextSrc) return;
+      const current = video.getAttribute('src') || '';
+      if (current === nextSrc) {
+        video.muted = nextMuted;
+        video.defaultMuted = nextMuted;
+        return;
+      }
+      const t = (typeof video.currentTime === 'number' && isFinite(video.currentTime)) ? video.currentTime : 0;
+      video.muted = nextMuted;
+      video.defaultMuted = nextMuted;
+      video.setAttribute('src', nextSrc);
       try { video.load(); } catch (_) {}
+      // After metadata is available, restore approximate time.
+      const restore = () => {
+        try { video.currentTime = Math.min(t, Math.max(0, (video.duration || t))); } catch (_) {}
+      };
+      video.addEventListener('loadedmetadata', restore, { once: true });
+    }
+
+    if (silentSrc && !video.getAttribute('src')) {
+      setSrcKeepTime(silentSrc, true);
     }
 
 
@@ -117,22 +138,36 @@
     // Optional: user-controlled sound toggle (does not affect autoplay: video starts muted).
     if (soundToggle) {
       const renderSoundState = () => {
-        const on = !video.muted;
-        if (soundIcon) soundIcon.textContent = on ? '🔊' : '🔇';
-        if (soundLabel) soundLabel.textContent = on ? 'Dźwięk: wł.' : 'Dźwięk: wył.';
+        if (!soundLabel) return;
+        soundLabel.textContent = video.muted ? 'Włącz dźwięk' : 'Wycisz';
       };
       renderSoundState();
 
       soundToggle.addEventListener('click', async () => {
+        // User gesture: enable/disable sound. For iOS reliability, swap assets:
+        // - muted autoplay uses silentSrc
+        // - unmuted uses audioSrc (if available)
+        const wantSound = video.muted;
         try {
-          video.muted = !video.muted;
-          video.defaultMuted = video.muted;
-          if (!video.muted) video.volume = 1.0;
+          if (wantSound) {
+            // Switch to audio asset if provided, then unmute.
+            if (audioSrc) setSrcKeepTime(audioSrc, false);
+            video.muted = false;
+            video.defaultMuted = false;
+            video.volume = 1.0;
+          } else {
+            // Mute (and optionally return to silent asset)
+            video.muted = true;
+            video.defaultMuted = true;
+            if (silentSrc) setSrcKeepTime(silentSrc, true);
+          }
           await video.play();
         } catch (_) {
-          // If unmuted playback is blocked, keep muted.
+          // If something blocks unmuted playback, fall back to muted silent playback.
           video.muted = true;
           video.defaultMuted = true;
+          if (silentSrc) setSrcKeepTime(silentSrc, true);
+          try { await video.play(); } catch (_) {}
         } finally {
           renderSoundState();
         }
