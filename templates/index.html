@@ -3,7 +3,7 @@
 
 {% block head %}
   {{ super() }}
-  <link rel="preload" as="video" href="{{ url_for('static', filename='video/hero.mp4') }}" type="video/mp4">
+  <link rel="preload" as="video" href="{{ url_for('static', filename='video/hero_silent.mp4') }}" type="video/mp4">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 {% endblock %}
 
@@ -11,7 +11,7 @@
 <!-- Fullscreen video hero (Neuralink-like) -->
 <section class="relative h-[calc(100vh-64px)] min-h-[640px] overflow-hidden">
   <video id="heroVideo" class="absolute inset-0 h-full w-full object-cover" autoplay loop playsinline muted webkit-playsinline preload="auto" disablepictureinpicture controlslist="nodownload noplaybackrate noremoteplayback">
-    <source src="{{ url_for('static', filename='video/hero.mp4') }}" type="video/mp4" />
+    <source src="{{ url_for('static', filename='video/hero_silent.mp4') }}" type="video/mp4" />
   </video>
   <div class="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-white/0"></div>
 

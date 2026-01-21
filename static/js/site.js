@@ -59,11 +59,15 @@
     });
   }
 
-  if (video && soundToggle) {
-    // Browsers block autoplay-with-sound; start muted and allow user to unmute.
+  if (video) {
+    // iOS/Safari requires muted + playsinline set as properties too.
     video.muted = true;
+    video.defaultMuted = true;
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
 
-    // Best-effort: ensure the hero video actually starts (some browsers pause until user gesture).
+    // Best-effort: ensure the hero video actually starts (iOS/FB in-app can be finicky).
     const tryPlay = () => {
       try {
         const p = video.play();
@@ -71,35 +75,49 @@
       } catch (_) {}
     };
 
-    // Attempt to play as soon as possible.
+    // Attempt multiple times across the initial load window.
     tryPlay();
+    setTimeout(tryPlay, 200);
+    setTimeout(tryPlay, 800);
+    setTimeout(tryPlay, 1500);
+    video.addEventListener('loadedmetadata', tryPlay, { once: true });
     video.addEventListener('loadeddata', tryPlay, { once: true });
     video.addEventListener('canplay', tryPlay, { once: true });
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) tryPlay();
     });
 
-    function updateLabel() {
-      soundToggle.textContent = video.muted ? 'Włącz dźwięk' : 'Wycisz';
-    }
+    // If autoplay is blocked, start playback on the very first user interaction
+    // (so user doesn't have to hit the native play triangle).
+    const startOnFirstGesture = () => {
+      tryPlay();
+      window.removeEventListener('touchstart', startOnFirstGesture, true);
+      window.removeEventListener('click', startOnFirstGesture, true);
+      window.removeEventListener('scroll', startOnFirstGesture, true);
+    };
+    window.addEventListener('touchstart', startOnFirstGesture, { passive: true, capture: true, once: true });
+    window.addEventListener('click', startOnFirstGesture, { capture: true, once: true });
+    window.addEventListener('scroll', startOnFirstGesture, { passive: true, capture: true, once: true });
 
-    updateLabel();
-
-    soundToggle.addEventListener('click', async () => {
-      try {
-        video.muted = !video.muted;
-        if (!video.muted) {
-          video.volume = 1.0;
-        }
-        await video.play();
-      } catch (_) {
-        // If play fails, keep muted.
-        video.muted = true;
-      } finally {
-        updateLabel();
+    if (soundToggle) {
+      function updateLabel() {
+        soundToggle.textContent = video.muted ? 'Włącz dźwięk' : 'Wycisz';
       }
-    });
 
+      updateLabel();
+
+      soundToggle.addEventListener('click', async () => {
+        try {
+          video.muted = !video.muted;
+          if (!video.muted) video.volume = 1.0;
+          await video.play();
+        } catch (_) {
+          video.muted = true;
+        } finally {
+          updateLabel();
+        }
+      });
+    }
     // Do not attach click-to-pause (touch users can pause accidentally).
   }
 
