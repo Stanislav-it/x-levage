@@ -120,7 +120,7 @@ def create_app():
         # Branding / contact
         SITE_NAME=os.environ.get("SITE_NAME", "X‑LEVAGE"),
         BRAND=os.environ.get("BRAND", "X‑LEVAGE"),
-        CONTACT_EMAIL=os.environ.get("CONTACT_EMAIL", "xlevage@gmail.com"),
+        CONTACT_EMAIL=os.environ.get("CONTACT_EMAIL", "biuro.x-estetik@op.pl"),
         CONTACT_PHONE=os.environ.get("CONTACT_PHONE", "+48 518 151 673"),
         INSTAGRAM_HANDLE=os.environ.get("INSTAGRAM_HANDLE", "xestetik"),
         INSTAGRAM_URL=os.environ.get(
@@ -132,7 +132,7 @@ def create_app():
             "https://www.facebook.com/lasertulowyxlevage",
         ),
         # Contact form email delivery
-        MAIL_TO=os.environ.get("MAIL_TO", "xlevage@gmail.com"),
+        MAIL_TO=os.environ.get("MAIL_TO", "biuro.x-estetik@op.pl"),
         SMTP_HOST=os.environ.get("SMTP_HOST", ""),
         SMTP_PORT=int(os.environ.get("SMTP_PORT", "587")),
         SMTP_USER=os.environ.get("SMTP_USER", ""),
@@ -143,7 +143,7 @@ def create_app():
         # External requests
         NOMINATIM_USER_AGENT=os.environ.get(
             "NOMINATIM_USER_AGENT",
-            "xlevage-site/1.0 (contact: xlevage@gmail.com)",
+            "xlevage-site/1.0 (contact: biuro.x-estetik@op.pl)",
         ),
     )
 
@@ -1166,7 +1166,7 @@ def geocode_address(address: str):
         ua = (
             (current_app.config.get("NOMINATIM_USER_AGENT") if current_app else "")
             or os.environ.get("NOMINATIM_USER_AGENT", "")
-            or "xlevage-site/1.0 (contact: xlevage@gmail.com)"
+            or "xlevage-site/1.0 (contact: biuro.x-estetik@op.pl)"
         )
 
         resp = requests.get(

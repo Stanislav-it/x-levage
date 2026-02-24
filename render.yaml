@@ -36,7 +36,7 @@ services:
         sync: false
 
       - key: CONTACT_EMAIL
-        value: xlevage@gmail.com
+        value: biuro.x-estetik@op.pl
 
       - key: INSTAGRAM_HANDLE
         value: xestetik
@@ -46,7 +46,7 @@ services:
 
       # Contact form email delivery (SMTP). For Gmail you typically need an App Password.
       - key: MAIL_TO
-        value: xlevage@gmail.com
+        value: biuro.x-estetik@op.pl
 
       - key: SMTP_HOST
         value: smtp.gmail.com
@@ -64,7 +64,7 @@ services:
         sync: false
 
       - key: SMTP_FROM
-        value: xlevage@gmail.com
+        value: biuro.x-estetik@op.pl
 
       - key: NOMINATIM_USER_AGENT
-        value: xlevage-site/1.0 (contact: xlevage@gmail.com)
+        value: xlevage-site/1.0 (contact: biuro.x-estetik@op.pl)

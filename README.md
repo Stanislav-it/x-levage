@@ -94,22 +94,22 @@ Następnie w Render -> **Environment** (to jest lista **Key / Value**) dodaj:
 - `SECRET_KEY` = (Generate)
 - `ADMIN_USER` = (np. twoj_login)
 - `ADMIN_PASS` = (mocne haslo)
-- `CONTACT_EMAIL` = `xlevage@gmail.com` (pokazywany w stopce)
+- `CONTACT_EMAIL` = `biuro.x-estetik@op.pl` (pokazywany w stopce)
 - `INSTAGRAM_HANDLE` = `xestetik`
 - `INSTAGRAM_URL` = `https://www.instagram.com/xestetik?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==`
-- `NOMINATIM_USER_AGENT` = `xlevage-site/1.0 (contact: xlevage@gmail.com)`
+- `NOMINATIM_USER_AGENT` = `xlevage-site/1.0 (contact: biuro.x-estetik@op.pl)`
 
 **4) Powiadomienia e‑mail z formularza (opcjonalne, SMTP)**
 Jeżeli chcesz, aby zgłoszenia z formularza przychodziły na e‑mail, skonfiguruj SMTP.
 
 Minimalnie ustaw:
-- `MAIL_TO` = `xlevage@gmail.com`
+- `MAIL_TO` = `biuro.x-estetik@op.pl`
 - `SMTP_HOST` = `smtp.gmail.com`
 - `SMTP_PORT` = `587`
 - `SMTP_TLS` = `1`
-- `SMTP_USER` = (np. `xlevage@gmail.com`)
+- `SMTP_USER` = (np. `biuro.x-estetik@op.pl`)
 - `SMTP_PASS` = (dla Gmail: **App Password**, nie zwykłe hasło)
-- `SMTP_FROM` = `xlevage@gmail.com` (lub zostaw puste, wtedy użyje `SMTP_USER`)
+- `SMTP_FROM` = `biuro.x-estetik@op.pl` (lub zostaw puste, wtedy użyje `SMTP_USER`)
 
 Jeżeli hostujesz pod domeną, zadbaj o HTTPS (Render daje HTTPS automatycznie dla domeny *.onrender.com).
 
