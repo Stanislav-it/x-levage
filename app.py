@@ -701,7 +701,7 @@ def official_clinics_list():
     lat/lon are resolved automatically on first run via Nominatim (and cached).
     """
     # Ambassadors list as provided by the client:
-    # Showroom + 4,5,8,10,13,14,16,19,20,21,22
+    # Showroom + 4,5,8,10,13,14,16,19,20,21,22,23
     return [
         # 1 (renamed)
         {
@@ -924,6 +924,17 @@ def official_clinics_list():
             "phone": "501232995",
             "lat": 49.981356,
             "lon": 20.059356,
+        },
+
+        # 23
+        {
+            "kind": "ambassadors",
+            "name": "Beauty Architects",
+            "address": "Śniadeckich 20C lok. 1, 35-006 Rzeszów, Polska",
+            "city": "Rzeszów",
+            "phone": "+48784997631",
+            "lat": 50.04138,
+            "lon": 22.01368,
         },
     ]
 
