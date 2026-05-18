@@ -50,6 +50,18 @@ W produkcji ustaw co najmniej:
 - `SECRET_KEY` (w Render możesz użyć przycisku **Generate**)
 - `ADMIN_USER` i `ADMIN_PASS`
 
+### Analityka: GTM / GA4 / Google Ads
+Kod ma już przygotowane podłączenie analityki. Ustaw na serwerze:
+- `GTM_ID` = np. `GTM-XXXXXXX`
+- `GA4_MEASUREMENT_ID` = np. `G-XXXXXXXXXX`
+
+Opcjonalnie dla Google Ads:
+- `GOOGLE_ADS_CONVERSION_ID` = np. `AW-123456789`
+- `GOOGLE_ADS_LEAD_CONVERSION_LABEL`
+- `GOOGLE_ADS_PRESENTATION_CONVERSION_LABEL`
+
+Szczegóły zdarzeń i testów: `ANALYTICS_SETUP.md`.
+
 ## Materiały (zdjęcia)
 Dodaj pliki:
 - `static/efekty_zabiegow/*` (przed/po)
@@ -98,6 +110,11 @@ Następnie w Render -> **Environment** (to jest lista **Key / Value**) dodaj:
 - `INSTAGRAM_HANDLE` = `xestetik`
 - `INSTAGRAM_URL` = `https://www.instagram.com/xestetik?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==`
 - `NOMINATIM_USER_AGENT` = `xlevage-site/1.0 (contact: biuro.x-estetik@op.pl)`
+- `GTM_ID` = `GTM-XXXXXXX`
+- `GA4_MEASUREMENT_ID` = `G-XXXXXXXXXX`
+- `GOOGLE_ADS_CONVERSION_ID` = `AW-123456789` (opcjonalnie)
+- `GOOGLE_ADS_LEAD_CONVERSION_LABEL` = label konwersji lead (opcjonalnie)
+- `GOOGLE_ADS_PRESENTATION_CONVERSION_LABEL` = label konwersji prezentacji (opcjonalnie)
 
 **4) Powiadomienia e‑mail z formularza (opcjonalne, SMTP)**
 Jeżeli chcesz, aby zgłoszenia z formularza przychodziły na e‑mail, skonfiguruj SMTP.

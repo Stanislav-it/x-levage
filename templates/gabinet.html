@@ -13,7 +13,7 @@
     </div>
   </div>
 
-  <form class="mt-6 flex gap-3" method="get" action="{{ url_for('gabinet') }}">
+  <form class="mt-6 flex gap-3" method="get" action="{{ url_for('gabinet') }}" data-analytics-form="clinic_search">
     <input type="hidden" name="view" value="{{ view }}">
     <input name="q" value="{{ q }}" placeholder="Szukaj: miasto / nazwa / ulica" class="flex-1 px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
     <button class="px-5 py-3 rounded-2xl bg-slate-900 text-white hover:bg-slate-800">Szukaj</button>
@@ -119,12 +119,14 @@
     const res = await fetch(`/api/clinics?${new URLSearchParams({view, q}).toString()}`);
     const data = await res.json();
     const clinics = data.clinics || [];
+    if (window.xlvTrack) window.xlvTrack('clinics_map_loaded', { clinics_count: clinics.length, view: view || 'all', search_query_present: q ? true : false, page_path: window.location.pathname });
     let bounds = [];
 
     clinics.forEach(c => {
       if (c.lat && c.lon) {
         const m = L.marker([c.lat, c.lon], { icon: baseIcon }).addTo(map);
         m.bindPopup(popupHtml(c));
+        m.on('click', () => { if (window.xlvTrack) window.xlvTrack('map_marker_click', { clinic_id: c.id || '', clinic_city: c.city || '', view: view || 'all', page_path: window.location.pathname }); });
         markers.set(String(c.id), m);
         bounds.push([c.lat, c.lon]);
       }
@@ -141,6 +143,7 @@
   document.querySelectorAll('#clinicList [data-clinic-id]').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.getAttribute('data-clinic-id');
+      if (window.xlvTrack) window.xlvTrack('clinic_list_click', { clinic_id: id || '', view: view || 'all', page_path: window.location.pathname });
       const m = markers.get(String(id));
       if (m) {
         map.setView(m.getLatLng(), 14, { animate: true });

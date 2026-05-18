@@ -39,8 +39,8 @@
         </p>
 
         <div class="mt-7 flex flex-col sm:flex-row gap-3">
-          <a href="{{ url_for('pro') }}" class="px-6 py-3 rounded-2xl bg-white text-slate-900 hover:bg-white/90 shadow-soft">Poznaj X‑Levage Pro</a>
-          <a href="{{ url_for('erbo') }}" class="px-6 py-3 rounded-2xl border border-white/60 text-white hover:bg-white/10">Poznaj X‑Levage Erbo</a>
+          <a href="{{ url_for('pro') }}" class="px-6 py-3 rounded-2xl bg-white text-slate-900 hover:bg-white/90 shadow-soft" data-analytics-event="cta_click" data-analytics-label="hero_pro">Poznaj X‑Levage Pro</a>
+          <a href="{{ url_for('erbo') }}" class="px-6 py-3 rounded-2xl border border-white/60 text-white hover:bg-white/10" data-analytics-event="cta_click" data-analytics-label="hero_erbo">Poznaj X‑Levage Erbo</a>
         </div>
 
         <div class="mt-6 flex items-center gap-3 text-white/75 text-sm">
@@ -85,10 +85,10 @@
         </p>
       </div>
       <div class="mt-auto pt-5 flex flex-col sm:flex-row gap-3">
-        <a href="{{ url_for('prezentacja') }}" class="no-underline inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-black text-white hover:bg-slate-900">
+        <a href="{{ url_for('prezentacja') }}" class="no-underline inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-black text-white hover:bg-slate-900" data-analytics-event="cta_click" data-analytics-label="home_presentation">
           Umów prezentację
         </a>
-        <a href="{{ url_for('gabinet') }}" class="no-underline inline-flex items-center justify-center px-6 py-3 rounded-2xl border border-black text-black hover:bg-slate-50">
+        <a href="{{ url_for('gabinet') }}" class="no-underline inline-flex items-center justify-center px-6 py-3 rounded-2xl border border-black text-black hover:bg-slate-50" data-analytics-event="cta_click" data-analytics-label="home_clinics">
           Zobacz gabinety
         </a>
       </div>
@@ -98,7 +98,7 @@
     <div class="rounded-3xl border border-slate-100 p-6 shadow-soft bg-white flex flex-col h-full">
       <div class="text-sm text-slate-500">Szybki kontakt</div>
       <div class="mt-2 text-xl font-semibold">Zapytanie o urządzenie / prezentację</div>
-      <form class="mt-5 grid gap-3" method="post" action="{{ url_for('lead') }}">
+      <form class="mt-5 grid gap-3" method="post" action="{{ url_for('lead') }}" data-analytics-form="contact_quick">
         <div class="grid sm:grid-cols-2 gap-3">
           <input name="name" placeholder="Imię i nazwisko" class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
           <input name="phone" placeholder="Telefon (opcjonalnie)" class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
@@ -134,7 +134,7 @@
   {% if effects %}
     <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3" data-effects-grid>
       {% for src in effects %}
-        <a href="{{ src }}" target="_blank" data-effects-item
+        <a href="{{ src }}" target="_blank" data-effects-item data-analytics-event="gallery_image_click" data-analytics-label="effects"
            class="group block overflow-hidden rounded-2xl border border-slate-100 bg-slate-50 {% if loop.index0 >= 8 %}hidden{% endif %}">
           <img src="{{ src }}" alt="Efekt zabiegu" loading="lazy" class="w-full h-48 object-cover group-hover:scale-[1.02] transition">
         </a>
@@ -225,7 +225,7 @@
     </div>
     <div class="rounded-3xl border border-slate-100 p-6 shadow-soft">
       <div class="text-sm text-slate-500">Szybkie zapytanie</div>
-      <form class="mt-4 grid gap-3" method="post" action="{{ url_for('lead') }}">
+      <form class="mt-4 grid gap-3" method="post" action="{{ url_for('lead') }}" data-analytics-form="contact_footer_section">
         <input name="name" placeholder="Imię i nazwisko" class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
         <div class="grid sm:grid-cols-2 gap-3">
           <input type="email" name="email" placeholder="E‑mail" class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-200">
@@ -267,6 +267,7 @@
         .then(r => r.json())
         .then(data => {
           const clinics = (data && data.clinics) ? data.clinics : [];
+          if (window.xlvTrack) window.xlvTrack('map_preview_loaded', { clinics_count: clinics.length, page_path: window.location.pathname });
           const listEl = document.getElementById('mapPreviewList');
           const markerById = new Map();
           const pts = [];
@@ -292,6 +293,7 @@
             if (address) popupParts.push('<div class="text-xs text-slate-600">' + address + '</div>');
             if (phone) popupParts.push('<div class="mt-2 text-sm"><a class="underline" href="tel:' + phone.replace(/\s+/g,'') + '">' + phone + '</a></div>');
             const m = L.marker([lat, lng], { icon }).addTo(map).bindPopup(popupParts.join(''));
+            m.on('click', () => { if (window.xlvTrack) window.xlvTrack('map_marker_click', { clinic_id: c.id || '', clinic_city: city, page_path: window.location.pathname }); });
             if (c.id != null) markerById.set(String(c.id), m);
 
             // Left list
@@ -314,6 +316,7 @@
                 + (address ? ('<div class="mpl-addr">' + address + '</div>') : '')
                 + (phone ? ('<div class="mpl-phone"><a href="tel:' + phone.replace(/\s+/g,'') + '" onclick="event.stopPropagation()">' + phone + '</a></div>') : '');
               row.addEventListener('click', () => {
+                if (window.xlvTrack) window.xlvTrack('clinic_list_click', { clinic_id: c.id || '', clinic_city: city, page_path: window.location.pathname });
                 map.setView([lat, lng], Math.max(map.getZoom(), 12), { animate: true });
                 m.openPopup();
               });

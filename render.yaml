@@ -66,5 +66,20 @@ services:
       - key: SMTP_FROM
         value: biuro.x-estetik@op.pl
 
+      - key: GTM_ID
+        sync: false
+
+      - key: GA4_MEASUREMENT_ID
+        sync: false
+
+      - key: GOOGLE_ADS_CONVERSION_ID
+        sync: false
+
+      - key: GOOGLE_ADS_LEAD_CONVERSION_LABEL
+        sync: false
+
+      - key: GOOGLE_ADS_PRESENTATION_CONVERSION_LABEL
+        sync: false
+
       - key: NOMINATIM_USER_AGENT
         value: xlevage-site/1.0 (contact: biuro.x-estetik@op.pl)

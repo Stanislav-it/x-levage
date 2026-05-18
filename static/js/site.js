@@ -1,4 +1,176 @@
 (function () {
+  // ---------------- Analytics helpers (GTM / GA4 / Google Ads) ----------------
+  const analyticsConfig = window.xlvAnalyticsConfig || {};
+
+  function sanitizeAnalyticsParams(params) {
+    const blocked = {
+      name: true,
+      email: true,
+      phone: true,
+      message: true,
+      full_name: true,
+      user_email: true,
+      user_phone: true
+    };
+    const clean = {};
+    Object.keys(params || {}).forEach((key) => {
+      if (blocked[key]) return;
+      const value = params[key];
+      if (value === undefined || value === null || value === '') return;
+      if (typeof value === 'string') clean[key] = value.slice(0, 180);
+      else if (typeof value === 'number' || typeof value === 'boolean') clean[key] = value;
+      else clean[key] = String(value).slice(0, 180);
+    });
+    return clean;
+  }
+
+  function adsSendToForEvent(eventName, params) {
+    const adsId = analyticsConfig.googleAdsConversionId || '';
+    if (!adsId) return '';
+
+    let label = '';
+    if (eventName === 'presentation_request' || (params && params.lead_type === 'presentation')) {
+      label = analyticsConfig.googleAdsPresentationConversionLabel || analyticsConfig.googleAdsLeadConversionLabel || '';
+    } else if (eventName === 'generate_lead' || eventName === 'contact_form_submit_success') {
+      label = analyticsConfig.googleAdsLeadConversionLabel || '';
+    }
+    return label ? `${adsId}/${label}` : '';
+  }
+
+  function trackEvent(eventName, params) {
+    if (!eventName) return;
+    const cleanParams = sanitizeAnalyticsParams(params || {});
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(Object.assign({ event: eventName }, cleanParams));
+
+    // Direct GA4 fallback is used when GA4 was loaded without GTM.
+    if (typeof window.gtag === 'function' && analyticsConfig.ga4MeasurementId && !analyticsConfig.gtmId) {
+      window.gtag('event', eventName, cleanParams);
+
+      const sendTo = adsSendToForEvent(eventName, cleanParams);
+      if (sendTo) {
+        window.gtag('event', 'conversion', Object.assign({ send_to: sendTo }, cleanParams));
+      }
+    }
+  }
+
+  window.xlvTrack = trackEvent;
+
+  (analyticsConfig.queuedEvents || []).forEach((queued) => {
+    if (!queued || !queued.event) return;
+    trackEvent(queued.event, queued.params || {});
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    trackEvent('page_ready', {
+      page_path: window.location.pathname,
+      page_title: document.title
+    });
+  });
+
+  // Google Consent Mode v2: default is denied in the template, user choice updates it here.
+  document.addEventListener('DOMContentLoaded', () => {
+    const banner = document.getElementById('cookieConsent');
+    const acceptBtn = document.getElementById('cookieAccept');
+    const rejectBtn = document.getElementById('cookieReject');
+    const storageKey = 'xlv_cookie_consent';
+
+    function applyConsent(value) {
+      const granted = value === 'granted';
+      if (typeof window.gtag === 'function') {
+        window.gtag('consent', 'update', {
+          ad_storage: granted ? 'granted' : 'denied',
+          analytics_storage: granted ? 'granted' : 'denied',
+          ad_user_data: granted ? 'granted' : 'denied',
+          ad_personalization: granted ? 'granted' : 'denied',
+          functionality_storage: 'granted',
+          security_storage: 'granted'
+        });
+      }
+      trackEvent('cookie_consent_update', { consent_status: granted ? 'granted' : 'denied' });
+    }
+
+    let stored = '';
+    try { stored = window.localStorage.getItem(storageKey) || ''; } catch (_) {}
+
+    if (stored === 'granted' || stored === 'denied') {
+      applyConsent(stored);
+      return;
+    }
+
+    if (banner) banner.classList.remove('hidden');
+
+    if (acceptBtn) {
+      acceptBtn.addEventListener('click', () => {
+        try { window.localStorage.setItem(storageKey, 'granted'); } catch (_) {}
+        applyConsent('granted');
+        if (banner) banner.classList.add('hidden');
+      });
+    }
+
+    if (rejectBtn) {
+      rejectBtn.addEventListener('click', () => {
+        try { window.localStorage.setItem(storageKey, 'denied'); } catch (_) {}
+        applyConsent('denied');
+        if (banner) banner.classList.add('hidden');
+      });
+    }
+  });
+
+  // Public forms: track attempts in the browser; successful submissions are tracked server-side after redirect.
+  document.querySelectorAll('form').forEach((form) => {
+    const action = form.getAttribute('action') || window.location.pathname;
+    if (action.indexOf('/admin') === 0 || action.indexOf('/admin') > -1) return;
+
+    let formName = form.getAttribute('data-analytics-form') || '';
+    if (!formName) {
+      if (action.indexOf('umow-prezentacje') > -1) formName = 'presentation_request';
+      else if (action.indexOf('lead') > -1) formName = 'contact';
+      else formName = 'public_form';
+    }
+
+    let started = false;
+    form.addEventListener('focusin', () => {
+      if (started) return;
+      started = true;
+      trackEvent('form_start', { form_name: formName, page_path: window.location.pathname });
+    });
+
+    form.addEventListener('submit', () => {
+      trackEvent('form_submit_attempt', { form_name: formName, page_path: window.location.pathname });
+    });
+  });
+
+  // Generic click tracking for marked links/buttons plus common contact actions.
+  document.addEventListener('click', function (e) {
+    const target = e.target && e.target.closest ? e.target.closest('a,button,[data-analytics-event]') : null;
+    if (!target) return;
+
+    const explicit = target.getAttribute('data-analytics-event') || '';
+    if (explicit) {
+      trackEvent(explicit, {
+        event_label: target.getAttribute('data-analytics-label') || (target.textContent || '').trim(),
+        link_url: target.getAttribute('href') || '',
+        page_path: window.location.pathname
+      });
+      return;
+    }
+
+    const href = target.getAttribute('href') || '';
+    if (href.indexOf('tel:') === 0) {
+      trackEvent('phone_click', { event_label: 'phone', page_path: window.location.pathname });
+    } else if (href.indexOf('mailto:') === 0) {
+      trackEvent('email_click', { event_label: 'email', page_path: window.location.pathname });
+    } else if (href && /^https?:\/\//i.test(href)) {
+      try {
+        const url = new URL(href, window.location.href);
+        if (url.hostname !== window.location.hostname) {
+          trackEvent('outbound_click', { link_domain: url.hostname, link_url: url.href, page_path: window.location.pathname });
+        }
+      } catch (_) {}
+    }
+  });
+
   // ---------------- Mobile menu ----------------
   const btn = document.getElementById('mobileMenuBtn');
   const root = document.getElementById('mobileMenuRoot');
@@ -17,6 +189,7 @@
     root.setAttribute('aria-hidden', 'false');
     btn.setAttribute('aria-expanded', 'true');
     lockScroll(true);
+    trackEvent('mobile_menu_open', { page_path: window.location.pathname });
   }
 
   function closeMenu() {
@@ -25,6 +198,7 @@
     root.setAttribute('aria-hidden', 'true');
     btn.setAttribute('aria-expanded', 'false');
     lockScroll(false);
+    trackEvent('mobile_menu_close', { page_path: window.location.pathname });
   }
 
   if (btn && root) {
@@ -57,6 +231,7 @@
     scrollNext.addEventListener('click', () => {
       const el = document.getElementById('start');
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      trackEvent('cta_click', { event_label: 'scroll_next', page_path: window.location.pathname });
     });
   }
 
@@ -170,6 +345,7 @@
           try { await video.play(); } catch (_) {}
         } finally {
           renderSoundState();
+          trackEvent('video_sound_toggle', { muted: video.muted, page_path: window.location.pathname });
         }
       });
     }
@@ -223,6 +399,7 @@
         const toShow = items.slice(shown, shown + step);
         toShow.forEach((el) => el.classList.remove('hidden'));
         updateUI();
+        trackEvent('gallery_load_more', { gallery: 'effects', shown_count: shownCount(), page_path: window.location.pathname });
       });
     }
   });

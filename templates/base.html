@@ -5,9 +5,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ title or SITE_NAME }}</title>
   <meta name="description" content="{{ meta_description or 'Nowoczesne rozwiązania laserowe – X‑LEVAGE.' }}">
+
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){window.dataLayer.push(arguments);}
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      analytics_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      functionality_storage: 'granted',
+      security_storage: 'granted'
+    });
+  </script>
+
+  {% if GTM_ID %}
+  <!-- Google Tag Manager -->
+  <script>
+    window.dataLayer.push({
+      event: 'analytics_bootstrap',
+      site_name: {{ SITE_NAME|tojson }},
+      site_brand: {{ BRAND|tojson }},
+      ga4_measurement_id: {{ GA4_MEASUREMENT_ID|tojson }}
+    });
+    (function(w,d,s,l,i){
+      w[l]=w[l]||[];
+      w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+      var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),
+          dl=l!='dataLayer'?'&l='+l:'';
+      j.async=true;
+      j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+      f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer',{{ GTM_ID|tojson }});
+  </script>
+  <!-- End Google Tag Manager -->
+  {% elif GA4_MEASUREMENT_ID %}
+  <!-- Google tag (GA4 fallback when GTM_ID is not set) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ GA4_MEASUREMENT_ID }}"></script>
+  <script>
+    gtag('js', new Date());
+    gtag('config', {{ GA4_MEASUREMENT_ID|tojson }}, {
+      send_page_view: true,
+      page_title: document.title,
+      page_location: window.location.href
+    });
+  </script>
+  {% else %}
+  <script>window.dataLayer = window.dataLayer || [];</script>
+  {% endif %}
+
+  <script>
+    window.xlvAnalyticsConfig = {
+      gtmId: {{ GTM_ID|tojson }},
+      ga4MeasurementId: {{ GA4_MEASUREMENT_ID|tojson }},
+      googleAdsConversionId: {{ GOOGLE_ADS_CONVERSION_ID|tojson }},
+      googleAdsLeadConversionLabel: {{ GOOGLE_ADS_LEAD_CONVERSION_LABEL|tojson }},
+      googleAdsPresentationConversionLabel: {{ GOOGLE_ADS_PRESENTATION_CONVERSION_LABEL|tojson }},
+      queuedEvents: {{ (ANALYTICS_EVENTS or [])|tojson }}
+    };
+  </script>
+
   <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}?v=17">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}?v=18">
   <style>
     /* iOS/Safari: hide native overlay play icon for background hero video */
     #heroVideo::-webkit-media-controls,
@@ -43,6 +104,12 @@
   {% block head %}{% endblock %}
 </head>
 <body class="bg-white text-slate-900 antialiased">
+  {% if GTM_ID %}
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ GTM_ID }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+  {% endif %}
+
   <header class="site-header sticky top-0 bg-white/80 backdrop-blur border-b border-slate-100">
     <!-- Thinner header: smaller vertical padding + compact logo/typography -->
     <div class="max-w-6xl mx-auto px-4 py-1.5 md:py-2 flex items-center justify-between gap-3">
@@ -131,16 +198,16 @@
         <div class="font-semibold">Kontakt</div>
         <div class="mt-3 text-sm text-slate-600 space-y-2">
           {% if CONTACT_EMAIL %}
-          <div>E‑mail: <a class="underline" href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a></div>
+          <div>E‑mail: <a class="underline" href="mailto:{{ CONTACT_EMAIL }}" data-analytics-event="email_click" data-analytics-label="footer">{{ CONTACT_EMAIL }}</a></div>
           {% endif %}
           {% if CONTACT_PHONE %}
-          <div>Telefon/WhatsApp: <a class="underline" href="tel:{{ CONTACT_PHONE|replace(' ','') }}">{{ CONTACT_PHONE }}</a></div>
+          <div>Telefon/WhatsApp: <a class="underline" href="tel:{{ CONTACT_PHONE|replace(' ','') }}" data-analytics-event="phone_click" data-analytics-label="footer">{{ CONTACT_PHONE }}</a></div>
           {% endif %}
           {% if INSTAGRAM_URL %}
-          <div>Instagram: <a class="underline" href="{{ INSTAGRAM_URL }}" target="_blank" rel="noopener">@{{ INSTAGRAM_HANDLE or 'xestetik' }}</a></div>
+          <div>Instagram: <a class="underline" href="{{ INSTAGRAM_URL }}" target="_blank" rel="noopener" data-analytics-event="social_click" data-analytics-label="instagram">@{{ INSTAGRAM_HANDLE or 'xestetik' }}</a></div>
           {% endif %}
           {% if FACEBOOK_URL %}
-          <div>Facebook: <a class="underline" href="{{ FACEBOOK_URL }}" target="_blank" rel="noopener">/lasertulowyxlevage</a></div>
+          <div>Facebook: <a class="underline" href="{{ FACEBOOK_URL }}" target="_blank" rel="noopener" data-analytics-event="social_click" data-analytics-label="facebook">/lasertulowyxlevage</a></div>
           {% endif %}
           <div class="text-xs text-slate-500">Odpowiadamy w dni robocze.</div>
         </div>
@@ -218,6 +285,19 @@
   </div>
 
 
-  <script src="{{ url_for('static', filename='js/site.js') }}?v=17"></script>
+  <div id="cookieConsent" class="hidden fixed inset-x-4 bottom-4 z-50 mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-white p-4 shadow-soft">
+    <div class="flex flex-col md:flex-row md:items-center gap-4">
+      <div class="text-sm text-slate-600 leading-relaxed">
+        Używamy plików cookie do analityki i remarketingu. Możesz zaakceptować wszystkie zgody albo pozostać tylko przy niezbędnych cookies.
+        <a class="underline" href="{{ url_for('policies', slug='cookies') }}">Polityka cookies</a>.
+      </div>
+      <div class="flex shrink-0 gap-2">
+        <button id="cookieReject" type="button" class="px-4 py-2 rounded-2xl border border-slate-200 text-sm hover:border-slate-300">Tylko niezbędne</button>
+        <button id="cookieAccept" type="button" class="px-4 py-2 rounded-2xl bg-slate-900 text-white text-sm hover:bg-slate-800">Akceptuję</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/site.js') }}?v=18"></script>
 </body>
 </html>

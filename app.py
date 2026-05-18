@@ -140,6 +140,17 @@ def create_app():
         SMTP_FROM=os.environ.get("SMTP_FROM", ""),
         SMTP_TLS=str(os.environ.get("SMTP_TLS", "1")).strip().lower() in {"1", "true", "yes"},
 
+        # Analytics / ads tracking
+        # Set these in hosting environment variables, e.g. Render Environment.
+        # GTM_ID format: GTM-XXXXXXX
+        # GA4_MEASUREMENT_ID format: G-XXXXXXXXXX
+        # GOOGLE_ADS_CONVERSION_ID format: AW-123456789
+        GTM_ID=os.environ.get("GTM_ID", "").strip(),
+        GA4_MEASUREMENT_ID=os.environ.get("GA4_MEASUREMENT_ID", "").strip(),
+        GOOGLE_ADS_CONVERSION_ID=os.environ.get("GOOGLE_ADS_CONVERSION_ID", "").strip(),
+        GOOGLE_ADS_LEAD_CONVERSION_LABEL=os.environ.get("GOOGLE_ADS_LEAD_CONVERSION_LABEL", "").strip(),
+        GOOGLE_ADS_PRESENTATION_CONVERSION_LABEL=os.environ.get("GOOGLE_ADS_PRESENTATION_CONVERSION_LABEL", "").strip(),
+
         # External requests
         NOMINATIM_USER_AGENT=os.environ.get(
             "NOMINATIM_USER_AGENT",
@@ -221,6 +232,32 @@ def create_app():
             params['body'] = body
         query = urlencode(params, quote_via=quote)
         return f"https://mail.google.com/mail/?{query}"
+
+
+    def queue_analytics_event(event_name: str, **params) -> None:
+        """Queue a one-time browser analytics event for the next rendered page.
+
+        Used after POST -> redirect flows so successful leads are tracked only
+        after the server has accepted and saved the submission.
+        """
+        event_name = (event_name or "").strip()
+        if not event_name:
+            return
+
+        safe_params = {}
+        for key, value in (params or {}).items():
+            if value is None:
+                continue
+            # Keep payload small and avoid putting personal data in analytics.
+            if key in {"name", "email", "phone", "message"}:
+                continue
+            safe_params[str(key)] = value
+
+        events = session.get("_analytics_events", [])
+        if not isinstance(events, list):
+            events = []
+        events.append({"event": event_name, "params": safe_params})
+        session["_analytics_events"] = events[-10:]
 
 
     def archive_lead_to_disk(*, lead_id: int, created_at: str, name: str, email: str, phone: str, message: str) -> None:
@@ -406,6 +443,21 @@ def create_app():
         # Best-effort email notification (if SMTP configured).
         send_lead_email(name=name, email=email, phone=phone, message=message, lead_id=lead_id, created_at=created_at)
 
+        queue_analytics_event(
+            "generate_lead",
+            form_name="presentation_request",
+            lead_type="presentation",
+            lead_id=int(lead_id),
+            value=1,
+            currency="PLN",
+        )
+        queue_analytics_event(
+            "presentation_request",
+            form_name="presentation_request",
+            lead_type="presentation",
+            lead_id=int(lead_id),
+        )
+
         flash("Dziękujemy. Skontaktujemy się wkrótce.", "success")
         return redirect(url_for("prezentacja"))
 
@@ -441,6 +493,21 @@ def create_app():
 
         # Best-effort email notification (if SMTP configured).
         send_lead_email(name=name, email=email, phone=phone, message=message, lead_id=lead_id, created_at=created_at)
+
+        queue_analytics_event(
+            "generate_lead",
+            form_name="contact",
+            lead_type="contact",
+            lead_id=int(lead_id),
+            value=1,
+            currency="PLN",
+        )
+        queue_analytics_event(
+            "contact_form_submit_success",
+            form_name="contact",
+            lead_type="contact",
+            lead_id=int(lead_id),
+        )
 
         flash("Dziękujemy. Skontaktujemy się wkrótce.", "success")
         return redirect(request.referrer or url_for("index"))
@@ -628,6 +695,12 @@ def create_app():
             "mailto_link": mailto_link,
             "gmail_compose_link": gmail_compose_link,
             "CURRENT_YEAR": datetime.utcnow().year,
+            "GTM_ID": app.config.get("GTM_ID", ""),
+            "GA4_MEASUREMENT_ID": app.config.get("GA4_MEASUREMENT_ID", ""),
+            "GOOGLE_ADS_CONVERSION_ID": app.config.get("GOOGLE_ADS_CONVERSION_ID", ""),
+            "GOOGLE_ADS_LEAD_CONVERSION_LABEL": app.config.get("GOOGLE_ADS_LEAD_CONVERSION_LABEL", ""),
+            "GOOGLE_ADS_PRESENTATION_CONVERSION_LABEL": app.config.get("GOOGLE_ADS_PRESENTATION_CONVERSION_LABEL", ""),
+            "ANALYTICS_EVENTS": session.pop("_analytics_events", []),
         }
 
     return app
