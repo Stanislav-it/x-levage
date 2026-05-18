@@ -1003,7 +1003,7 @@ def official_clinics_list():
         {
             "kind": "ambassadors",
             "name": "Beauty Architects",
-            "address": "Śniadeckich 20C lok. 1, 35-006 Rzeszów, Polska",
+            "address": "Śniadeckich 20c/1, 35-006 Rzeszów, Polska",
             "city": "Rzeszów",
             "phone": "+48784997631",
             "lat": 50.04138,
