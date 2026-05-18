@@ -198,7 +198,7 @@
         <div class="font-semibold">Kontakt</div>
         <div class="mt-3 text-sm text-slate-600 space-y-2">
           {% if CONTACT_EMAIL %}
-          <div>E‑mail: <a class="underline" href="mailto:{{ CONTACT_EMAIL }}" data-analytics-event="email_click" data-analytics-label="footer">{{ CONTACT_EMAIL }}</a></div>
+          <div>E‑mail: <a class="underline" href="mailto:{{ CONTACT_EMAIL or 'biuro.x-estetik@op.pl' }}" data-analytics-event="email_click" data-analytics-label="footer">{{ CONTACT_EMAIL or 'biuro.x-estetik@op.pl' }}</a></div>
           {% endif %}
           {% if CONTACT_PHONE %}
           <div>Telefon/WhatsApp: <a class="underline" href="tel:{{ CONTACT_PHONE|replace(' ','') }}" data-analytics-event="phone_click" data-analytics-label="footer">{{ CONTACT_PHONE }}</a></div>

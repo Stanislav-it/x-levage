@@ -17,6 +17,27 @@ from flask import (
 from flask import current_app
 
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
+CANONICAL_CONTACT_EMAIL = "biuro.x-estetik@op.pl"
+
+def safe_contact_email_env(name: str, default: str = CANONICAL_CONTACT_EMAIL) -> str:
+    """Read contact email from env, but block the old public xlevage Gmail address.
+
+    Render Environment variables override code defaults. This guard prevents the
+    public footer/contact address from falling back to the obsolete xlevage Gmail
+    value if it is still present in Render.
+    """
+    value = (os.environ.get(name) or "").strip()
+    if not value:
+        return default
+    lowered = value.lower().replace(" ", "")
+    old_values = {
+        "xlevage@gmail.com",
+        "x-levage@gmail.com",
+        "xlevagegmail.com",
+    }
+    if lowered in old_values or "xlevage@gmail" in lowered:
+        return default
+    return value
 
 # ---------------------------------------------------------------------------
 # Storage paths
@@ -120,7 +141,7 @@ def create_app():
         # Branding / contact
         SITE_NAME=os.environ.get("SITE_NAME", "X‑LEVAGE"),
         BRAND=os.environ.get("BRAND", "X‑LEVAGE"),
-        CONTACT_EMAIL=os.environ.get("CONTACT_EMAIL", "biuro.x-estetik@op.pl"),
+        CONTACT_EMAIL=safe_contact_email_env("CONTACT_EMAIL"),
         CONTACT_PHONE=os.environ.get("CONTACT_PHONE", "+48 518 151 673"),
         INSTAGRAM_HANDLE=os.environ.get("INSTAGRAM_HANDLE", "xestetik"),
         INSTAGRAM_URL=os.environ.get(
@@ -132,12 +153,12 @@ def create_app():
             "https://www.facebook.com/lasertulowyxlevage",
         ),
         # Contact form email delivery
-        MAIL_TO=os.environ.get("MAIL_TO", "biuro.x-estetik@op.pl"),
+        MAIL_TO=safe_contact_email_env("MAIL_TO"),
         SMTP_HOST=os.environ.get("SMTP_HOST", ""),
         SMTP_PORT=int(os.environ.get("SMTP_PORT", "587")),
         SMTP_USER=os.environ.get("SMTP_USER", ""),
         SMTP_PASS=os.environ.get("SMTP_PASS", ""),
-        SMTP_FROM=os.environ.get("SMTP_FROM", ""),
+        SMTP_FROM=safe_contact_email_env("SMTP_FROM"),
         SMTP_TLS=str(os.environ.get("SMTP_TLS", "1")).strip().lower() in {"1", "true", "yes"},
 
         # Analytics / ads tracking
