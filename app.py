@@ -569,6 +569,7 @@ def create_app():
             url_for("erbo", _external=True),
             url_for("gabinet", _external=True),
             url_for("prezentacja", _external=True),
+            url_for("returns_policy", _external=True),
             url_for("merchant_feed_xml", _external=True),
         ]
         lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
@@ -714,6 +715,10 @@ def create_app():
         return redirect(request.referrer or url_for("index"))
 
     # ---------- Policies ----------
+    @app.get("/zwroty-i-reklamacje")
+    def returns_policy():
+        return render_template("policies/returns.html")
+
     @app.get("/policies/<slug>")
     def policies(slug):
         allowed = {"privacy", "cookies", "terms", "disclaimer", "rodo"}

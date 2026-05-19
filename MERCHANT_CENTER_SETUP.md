@@ -44,6 +44,7 @@ Feed zawiera pola: `id`, `title`, `description`, `link`, `image_link`, `availabi
 2. W Google Merchant Center potwierdzić i połączyć domenę.
 3. Dodać feed przez URL, np. `https://twojadomena.pl/merchant-feed.xml`.
 4. Ustawić dostawę i zwroty w Merchant Center zgodnie z realnymi zasadami sprzedaży.
+   URL zasad zwrotu: `https://lasertulowyxlevage.pl/zwroty-i-reklamacje`.
 5. Sprawdzić, czy ceny i dostępność na stronie są prawdziwe. Muszą zgadzać się z feedem.
 6. Po akceptacji produktów połączyć Merchant Center z Google Ads i uruchomić kampanię produktową / Performance Max.
 

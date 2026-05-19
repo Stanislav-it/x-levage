@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% set title = "Zwroty i reklamacje — " ~ BRAND %}
+{% set meta_description = "Zasady zwrotów, reklamacji i gwarancji dla urządzeń X‑Levage." %}
+{% block content %}
+<section class="max-w-3xl mx-auto px-4 pt-10 pb-16">
+  <h1 class="text-3xl font-semibold tracking-tight">Zwroty i reklamacje</h1>
+  <p class="mt-4 text-slate-600">
+    Poniższe zasady dotyczą sprzedaży urządzeń X‑Levage na rzecz firm oraz podmiotów wykorzystujących sprzęt w ramach prowadzonej działalności gospodarczej.
+  </p>
+
+  <div class="mt-8 space-y-6 text-sm text-slate-700">
+    <div>
+      <div class="font-semibold">Zwroty pełnowartościowego sprzętu</div>
+      <p class="mt-2 text-slate-600">
+        Nie przyjmujemy zwrotów pełnowartościowego sprzętu zakupionego do działalności gospodarczej.
+      </p>
+    </div>
+
+    <div>
+      <div class="font-semibold">Reklamacje</div>
+      <p class="mt-2 text-slate-600">
+        Klient może złożyć reklamację w ramach rękojmi zgodnie z obowiązującymi przepisami prawa. Reklamacja powinna zawierać dane kupującego, opis problemu, dokument zakupu oraz dane identyfikujące urządzenie.
+      </p>
+    </div>
+
+    <div>
+      <div class="font-semibold">Gwarancja</div>
+      <p class="mt-2 text-slate-600">
+        Urządzenia są objęte 24-miesięczną gwarancją. Szczegóły obsługi gwarancyjnej są ustalane po zgłoszeniu sprawy i weryfikacji urządzenia.
+      </p>
+    </div>
+
+    <div>
+      <div class="font-semibold">Kontakt w sprawie reklamacji</div>
+      <p class="mt-2 text-slate-600">
+        Przed odesłaniem urządzenia prosimy o wcześniejszy kontakt w celu ustalenia dalszych kroków.
+      </p>
+      <div class="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-slate-700">
+        {% if CONTACT_EMAIL %}
+        <div>E‑mail: <a class="underline" href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a></div>
+        {% endif %}
+        {% if CONTACT_PHONE %}
+        <div class="mt-1">Telefon/WhatsApp: <a class="underline" href="tel:{{ CONTACT_PHONE|replace(' ','') }}">{{ CONTACT_PHONE }}</a></div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
