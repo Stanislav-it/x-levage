@@ -1,14 +1,37 @@
 {% extends "base.html" %}
 {% set title = "X‑Levage Pro — Laser tulowy 1927 nm" %}
 {% set meta_description = "Laser tulowy 1927 nm – zastosowania, efekty i specyfikacja." %}
+{% block head %}
+<link rel="canonical" href="{{ product.url }}">
+<meta property="og:type" content="product">
+<meta property="og:title" content="{{ product.title }}">
+<meta property="og:description" content="{{ product.description }}">
+<meta property="og:url" content="{{ product.url }}">
+<meta property="og:image" content="{{ product.image_url }}">
+<meta property="product:price:amount" content="{{ '%.2f'|format(product.price) }}">
+<meta property="product:price:currency" content="{{ product.currency }}">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{{ product_json_ld|tojson }}</script>
+{% endblock %}
 {% block content %}
 <section class="max-w-7xl mx-auto px-4 pt-10 pb-10">
   <div class="max-w-4xl mx-auto flex flex-col gap-10 text-center">
     <div>
       <p class="text-base text-slate-500 uppercase tracking-wide">Laser tulowy</p>
       <h1 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight">X‑Levage Pro (1927 nm)</h1>
-      <div class="mt-4 inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-base text-slate-700">
-        Cena: <span class="ml-2 font-semibold">105 000 zł</span>
+      <div class="mt-4 flex flex-wrap justify-center gap-2 text-sm sm:text-base">
+        <div class="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-700">
+          Cena: <span class="ml-2 font-semibold">{{ product.price_display }}</span>
+        </div>
+        <div class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-800">
+          Dostępność: <span class="ml-2 font-semibold">{{ product.availability_label }}</span>
+        </div>
+        <div class="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-700">
+          Marka: <span class="ml-2 font-semibold">{{ product.brand }}</span>
+        </div>
+        <div class="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-700">
+          MPN: <span class="ml-2 font-semibold">{{ product.mpn }}</span>
+        </div>
       </div>
       
 <div class="mt-6 rounded-3xl border border-slate-100 bg-white p-6">

@@ -8,16 +8,72 @@ from datetime import datetime
 from email.message import EmailMessage
 import smtplib
 from urllib.parse import urlencode, quote
+from xml.sax.saxutils import escape as xml_escape
 
 import requests
 from flask import (
     Flask, abort, flash, g, jsonify, redirect, render_template,
-    request, session, url_for
+    request, session, url_for, Response
 )
 from flask import current_app
 
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
 CANONICAL_CONTACT_EMAIL = "biuro.x-estetik@op.pl"
+
+# Canonical product data used by product pages, Schema.org JSON-LD and
+# Merchant Center feeds. Keep visible landing-page data and feed data in one
+# place so Google sees matching price, availability, URL and image values.
+PRODUCT_CATALOG = {
+    "x-levage-pro": {
+        "id": "x-levage-pro-1927",
+        "endpoint": "pro",
+        "title": "X-Levage Pro — laser tulowy 1927 nm",
+        "short_name": "X-Levage Pro",
+        "description": (
+            "Frakcyjny laser tulowy 1927 nm do profesjonalnych gabinetów. "
+            "Urządzenie wspiera resurfacing, poprawę jakości skóry oraz pracę z przebarwieniami "
+            "zgodnie z kwalifikacją specjalisty i dokumentacją urządzenia."
+        ),
+        "brand": "X-LEVAGE",
+        "mpn": "XLV-PRO-1927",
+        "price": 105000.00,
+        "currency": "PLN",
+        "availability": "in_stock",
+        "availability_label": "Dostępny",
+        "schema_availability": "https://schema.org/InStock",
+        "condition": "new",
+        "condition_label": "Nowy",
+        "image": "fotos/pro_duo_banner.jpg",
+        "product_type": "Sprzęt kosmetologiczny > Laser tulowy",
+    },
+    "x-levage-erbo": {
+        "id": "x-levage-erbo-1550-1927",
+        "endpoint": "erbo",
+        "title": "X-Levage Erbo — laser 1550 nm + 1927 nm",
+        "short_name": "X-Levage Erbo",
+        "description": (
+            "Profesjonalna platforma laserowa łącząca długości fali 1550 nm oraz 1927 nm. "
+            "Przeznaczona do pracy w gabinetach z procedurami resurfacingu i poprawy jakości skóry "
+            "zgodnie z kwalifikacją specjalisty i dokumentacją urządzenia."
+        ),
+        "brand": "X-LEVAGE",
+        "mpn": "XLV-ERBO-1550-1927",
+        "price": 129000.00,
+        "currency": "PLN",
+        "availability": "in_stock",
+        "availability_label": "Dostępny",
+        "schema_availability": "https://schema.org/InStock",
+        "condition": "new",
+        "condition_label": "Nowy",
+        "image": "fotos/duo_1927_1550.jpg",
+        "product_type": "Sprzęt kosmetologiczny > Laser frakcyjny",
+    },
+}
+
+
+def format_price_pln(value: float) -> str:
+    return f"{float(value):,.2f}".replace(",", " ").replace(".", ",") + " zł"
+
 
 def safe_contact_email_env(name: str, default: str = CANONICAL_CONTACT_EMAIL) -> str:
     """Read contact email from env, but block the old public xlevage Gmail address.
@@ -254,6 +310,40 @@ def create_app():
         query = urlencode(params, quote_via=quote)
         return f"https://mail.google.com/mail/?{query}"
 
+    def product_payload(slug: str) -> dict:
+        """Return product data with absolute landing-page and image URLs."""
+        base = PRODUCT_CATALOG[slug]
+        product = dict(base)
+        product["url"] = url_for(product["endpoint"], _external=True)
+        product["image_url"] = url_for("static", filename=product["image"], _external=True)
+        product["price_display"] = format_price_pln(product["price"])
+        product["feed_price"] = f"{float(product['price']):.2f} {product['currency']}"
+        return product
+
+    def product_json_ld(product: dict) -> dict:
+        return {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": product["title"],
+            "description": product["description"],
+            "image": [product["image_url"]],
+            "brand": {"@type": "Brand", "name": product["brand"]},
+            "mpn": product["mpn"],
+            "sku": product["id"],
+            "url": product["url"],
+            "offers": {
+                "@type": "Offer",
+                "url": product["url"],
+                "priceCurrency": product["currency"],
+                "price": f"{float(product['price']):.2f}",
+                "availability": product["schema_availability"],
+                "itemCondition": "https://schema.org/NewCondition",
+            },
+        }
+
+    def xml_tag(name: str, value: str) -> str:
+        return f"    <{name}>{xml_escape(str(value or ''))}</{name}>"
+
 
     def queue_analytics_event(event_name: str, **params) -> None:
         """Queue a one-time browser analytics event for the next rendered page.
@@ -400,12 +490,102 @@ def create_app():
     @app.get("/laser-tulowy-x-levage-pro")
     def pro():
         effects = list_static_images("efekty_zabiegow")
-        return render_template("pro.html", effects=effects)
+        product = product_payload("x-levage-pro")
+        return render_template("pro.html", effects=effects, product=product, product_json_ld=product_json_ld(product))
 
     @app.get("/x-levage-erbo")
     def erbo():
         effects = list_static_images("efekty_zabiegow")
-        return render_template("erbo.html", effects=effects)
+        product = product_payload("x-levage-erbo")
+        return render_template("erbo.html", effects=effects, product=product, product_json_ld=product_json_ld(product))
+
+    @app.get("/merchant-feed.xml")
+    @app.get("/product-feed.xml")
+    def merchant_feed_xml():
+        products = [product_payload("x-levage-pro"), product_payload("x-levage-erbo")]
+        lines = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">',
+            '  <channel>',
+            xml_tag("title", f"{app.config.get('BRAND', 'X-LEVAGE')} — produkty"),
+            xml_tag("link", url_for("index", _external=True)),
+            xml_tag("description", "Feed produktowy dla Google Merchant Center"),
+        ]
+        for product in products:
+            lines.extend([
+                "  <item>",
+                xml_tag("g:id", product["id"]),
+                xml_tag("g:title", product["title"]),
+                xml_tag("g:description", product["description"]),
+                xml_tag("g:link", product["url"]),
+                xml_tag("g:image_link", product["image_url"]),
+                xml_tag("g:availability", product["availability"]),
+                xml_tag("g:price", product["feed_price"]),
+                xml_tag("g:condition", product["condition"]),
+                xml_tag("g:brand", product["brand"]),
+                xml_tag("g:mpn", product["mpn"]),
+                xml_tag("g:product_type", product["product_type"]),
+                xml_tag("g:adult", "no"),
+                "  </item>",
+            ])
+        lines.extend(["  </channel>", "</rss>"])
+        return Response("\n".join(lines) + "\n", mimetype="application/xml; charset=utf-8")
+
+    @app.get("/merchant-feed.tsv")
+    def merchant_feed_tsv():
+        import csv
+        import io
+
+        products = [product_payload("x-levage-pro"), product_payload("x-levage-erbo")]
+        headers = [
+            "id", "title", "description", "link", "image_link", "availability",
+            "price", "condition", "brand", "mpn", "product_type", "adult"
+        ]
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=headers, delimiter="\t", lineterminator="\n")
+        writer.writeheader()
+        for product in products:
+            writer.writerow({
+                "id": product["id"],
+                "title": product["title"],
+                "description": product["description"],
+                "link": product["url"],
+                "image_link": product["image_url"],
+                "availability": product["availability"],
+                "price": product["feed_price"],
+                "condition": product["condition"],
+                "brand": product["brand"],
+                "mpn": product["mpn"],
+                "product_type": product["product_type"],
+                "adult": "no",
+            })
+        return Response(output.getvalue(), mimetype="text/tab-separated-values; charset=utf-8")
+
+    @app.get("/sitemap.xml")
+    def sitemap_xml():
+        urls = [
+            url_for("index", _external=True),
+            url_for("pro", _external=True),
+            url_for("erbo", _external=True),
+            url_for("gabinet", _external=True),
+            url_for("prezentacja", _external=True),
+            url_for("merchant_feed_xml", _external=True),
+        ]
+        lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+        for item_url in urls:
+            lines.extend(["  <url>", f"    <loc>{xml_escape(item_url)}</loc>", "  </url>"])
+        lines.append("</urlset>")
+        return Response("\n".join(lines) + "\n", mimetype="application/xml; charset=utf-8")
+
+    @app.get("/robots.txt")
+    def robots_txt():
+        body = "\n".join([
+            "User-agent: *",
+            "Allow: /",
+            f"Sitemap: {url_for('sitemap_xml', _external=True)}",
+            "",
+        ])
+        return Response(body, mimetype="text/plain; charset=utf-8")
 
     @app.get("/gabinet")
     def gabinet():
